@@ -1,0 +1,27 @@
+# Java / Spring Boot
+target/
+*.class
+*.jar
+*.war
+.mvn/
+mvnw
+mvnw.cmd
+application-local.properties
+application-local.yml
+
+# Node / React
+node_modules/
+build/
+dist/
+.env
+.env.local
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Database
+*.sqlite
+*.db
