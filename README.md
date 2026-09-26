@@ -23,5 +23,9 @@ _TBD - will be updated once the initial project skeleton is set up._
 ## Configuration and Sample Accounts
 _TBD - will be updated once authentication is implemented._
 
+## Documentation
+- `docs/requirements/` — requirement drafts for each module (FR, NFR, business rules, use cases)
+- `docs/proposal/project-proposal-draft.md` — working draft of the Project Proposal
+
 ## Current Status
-Week 1 - Repository and project structure setup.
+Week 2 - Module requirements drafted; Project Proposal in progress (due Week 3).
