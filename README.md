@@ -27,5 +27,14 @@ _TBD - will be updated once authentication is implemented._
 - `docs/requirements/` — requirement drafts for each module (FR, NFR, business rules, use cases)
 - `docs/proposal/project-proposal-draft.md` — working draft of the Project Proposal
 
+## Team Workflow
+- `main` always builds. Nobody commits directly to `main`.
+- Work on a short-lived branch named `<type>/<short-description>`, e.g. `feature/reservation-overlap-check`,
+  `docs/proposal-week3`, `fix/bill-rounding`.
+- Open a pull request into `main`; another team member reviews and merges it.
+- Every member commits their own work from their own GitHub account, every week.
+- Commit messages are imperative and describe the change, e.g. `add overlap check to ReservationService`.
+- Release tags: `v0.1` (Week 5), `v0.2` (Week 7), `v1.0` (Week 9).
+
 ## Current Status
 Week 2 - Module requirements drafted; Project Proposal in progress (due Week 3).

@@ -41,9 +41,11 @@ The people who suffer are the waiters and hosts who handle complaints, the kitch
 changed or duplicated orders, the manager who cannot see the state of the restaurant, and the guests who wait
 longer and receive the wrong dishes.
 
-**[TODO]** Confirm this description with at least one real source before submission (Suggested Project Titles
-§2): a short interview with staff of a real restaurant, or a documented source. Add one or two sentences here
-describing what was confirmed, and cite it.
+The reservation side of this problem is documented in the hospitality literature. Tse and Poon [12] observed a
+busy restaurant in Hong Kong for two years and found that demand regularly exceeded the number of tables, while
+no-shows, cancellations and walk-ins made it difficult to decide how many reservations to accept. A system that
+keeps reservations, walk-ins and table status in one place is a precondition for managing these situations.
+The team will confirm the order-taking, kitchen and billing problems with restaurant staff (see §1.4).
 
 ### 1.2 Objectives
 
@@ -57,7 +59,7 @@ staff roles.
 2. Enforce **13 business rules** in the service layer, each covered by at least one automated unit test.
 3. Prevent double booking: **zero** overlapping reservations for the same table, including when two users book
    at the same moment.
-4. Document at least **30 test cases** with expected and actual results (course minimum for a team of three: 20).
+4. Document at least **30 test cases** with expected and actual results (course minimum for a team of three: 20 [2]).
 5. Meet the measurable non-functional requirements in §2.3, for example an availability search in under
    2 seconds and a new order visible in the kitchen within 3 seconds.
 
@@ -79,12 +81,13 @@ staff roles.
 
 ### 1.4 Requirements-gathering methods
 
-1. **Interview** — a semi-structured interview with the owner or staff of at least one real restaurant about
-   reservations, order taking, the kitchen and billing. **[TODO]** name of the restaurant, date, who attended.
-2. **Observation** — watching the front of house and the kitchen during a busy period to see where orders are
-   lost or delayed. **[TODO]** date and place, or remove this method if it will not be done.
-3. **Document review** — the course catalogue entry for this topic [2], requirements-engineering guidance [4], and
-   use-case writing guidance [7].
+1. **Document review** — published research on restaurant reservations, no-shows and walk-ins [12], the course
+   catalogue entry for this topic [2], requirements-engineering guidance [4], and use-case writing guidance [7].
+2. **Interview** — in Weeks 3–4, a semi-structured interview with the owner or staff of at least one restaurant in
+   Ho Chi Minh City about reservations, order taking, the kitchen and billing. The restaurant, the date and the
+   findings will be reported in Chapter 2 of the Final Report, and any requirement changes will be listed there.
+3. **Observation** — if the restaurant agrees, observing the front of house and the kitchen during a busy period
+   to see where orders are lost or delayed.
 4. **Team walkthroughs** — each module's use cases are walked through by the other two members to find gaps
    between modules (for example, what happens to a table after its bill is closed).
 
@@ -99,7 +102,7 @@ staff roles.
 
 ### 1.6 Structure of the final report
 
-Chapter 1 introduces the problem, objectives and scope. Chapter 2 presents the theoretical background, the
+The final report follows the course template [1]. Chapter 1 introduces the problem, objectives and scope. Chapter 2 presents the theoretical background, the
 current manual process and the requirement analysis. Chapter 3 covers system analysis, design, implementation
 and testing. Chapter 4 concludes with results against the proposal, limitations and future work. Appendices hold
 the full test-case log, the AI-use declaration and the individual contribution table.
@@ -242,15 +245,15 @@ FR-19 and FR-20 are Could requirements and will be added to UC-08 only if time a
 
 | Technology | Purpose | Justification |
 |---|---|---|
-| Java 17, Spring Boot 3 | Backend REST API | Spring's controller, service and repository layers give the presentation / business / data-access separation the course requires, and the team already knows Java. |
+| Java 17, Spring Boot 3 [8] | Backend REST API | Spring's controller, service and repository layers give the presentation / business / data-access separation the course requires [3], [6], and the team already knows Java. |
 | Spring Data JPA (Hibernate) | Data access | Maps domain classes to tables and removes boilerplate DAO code, so effort goes into the business rules; generated code will be identified in the report. |
-| MySQL 8 | Database | A relational database with transactions and unique constraints, which the no-double-booking and payment-integrity rules depend on. |
+| MySQL 8 [10] | Database | A relational database with transactions and unique constraints, which the no-double-booking and payment-integrity rules depend on. |
 | Spring Security, BCrypt | Login and roles | Provides hashed passwords and server-side role checks for the three roles. |
-| React 18 (JavaScript) | Frontend | Reusable components suit the several role-specific screens (floor overview, order screen, kitchen display). |
+| React 18 (JavaScript) [9] | Frontend | Reusable components suit the several role-specific screens (floor overview, order screen, kitchen display). |
 | Short polling (every 2 s) | Kitchen and out-of-stock updates | The simplest way to meet NFR-02 and NFR-03; WebSocket is a stretch goal. |
-| JUnit 5, Mockito | Automated tests | Unit tests for every business rule in the service layer, independent of the UI. |
+| JUnit 5 [11], Mockito | Automated tests | Unit tests for every business rule in the service layer, independent of the UI. |
 | Git, GitHub | Version control | Feature branches, pull requests and release tags v0.1, v0.2 and v1.0, as required by the course. |
-| draw.io or PlantUML | Diagrams | Use-case, class and sequence diagrams and the ERD, kept in `/docs`. |
+| draw.io or PlantUML | Diagrams | Use-case, class and sequence diagrams in UML 2.5 notation [5] and the ERD, kept in `/docs`. |
 
 ### 2.7 Work plan
 
@@ -374,12 +377,16 @@ Van Lang University, Ho Chi Minh City, Vietnam, 2026.
 [11] "JUnit 5 User Guide." [Online]. Available: https://junit.org/junit5/docs/current/user-guide/
 (accessed Sep. 26, 2026).
 
-**[TODO]** Add the interview or other source used in §1.1 and §1.4. Cite [3] and [6] where Chapter 2 mentions
-layered architecture, and [7] at the start of Appendix A.
+[12] T. S. M. Tse and Y.-T. Poon, "Modeling no-shows, cancellations, overbooking, and walk-ins in restaurant
+revenue management," *Journal of Foodservice Business Research*, vol. 20, no. 2, pp. 127–145, 2017,
+doi: 10.1080/15378020.2016.1198626.
 
 ---
 
 ## Appendix A — Use case specifications
+
+Each use case follows the structure recommended by Cockburn [7]: actors, precondition, main flow, alternative
+flows numbered by the step they branch from, and postcondition.
 
 ### UC-01: Log in and log out
 - **Actors:** Waiter/Host, Kitchen Staff, Manager
@@ -557,6 +564,7 @@ layered architecture, and [7] at the start of Appendix A.
 | Claude (Anthropic), via Claude Code | Drafting requirements, business rules and use cases for the Table & Reservation module | Chapter 2, Appendix A (UC-01 to UC-06) | **[TODO — Giang]** |
 | Claude (Anthropic), via Claude Code | Reviewing the three module drafts against the Guidelines; translating the Order & Kitchen draft into English; proposing measurable NFRs and business rules for Billing | Chapter 2, Appendix A | **[TODO — Lam, Khoa]** |
 | Claude (Anthropic), via Claude Code | Assembling this proposal draft from the module drafts | Chapters 1–4 | **[TODO — team]** |
+| Claude (Anthropic), via Claude Code | Searching for a published source on restaurant no-shows and walk-ins | §1.1, reference [12] | Title, authors, journal, volume, pages and DOI checked against the published PDF of the article |
 
 We declare that we understand every part of the submitted work and can explain it on request.
 
