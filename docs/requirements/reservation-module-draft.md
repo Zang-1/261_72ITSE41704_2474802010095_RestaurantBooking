@@ -30,7 +30,7 @@
 | Actor | Description |
 |---|---|
 | Waiter/Host | Front-of-house staff who take reservations, seat guests and manage the waiting list |
-| Manager | Configures tables and sections, can override table status |
+| Manager | Configures tables and sections; can also do everything a Waiter/Host can (table status still follows BR-RES-05) |
 | Kitchen Staff | Uses only the login function of this module |
 
 ## 3. Functional requirements
@@ -69,7 +69,7 @@ Implemented in the service layer (not in UI handlers) and proven with test cases
 | BR-RES-02 | **Capacity fit.** A party can only be assigned to a table whose capacity is greater than or equal to the party size. |
 | BR-RES-03 | **Clean before reuse.** A table becomes Available only after it is marked clean; it cannot be assigned while in Needs Cleaning. |
 | BR-RES-04 | **Waiting-list order.** Walk-ins are served in arrival order; a later party may be seated first only if no earlier party fits the free table. |
-| BR-RES-05 | **Table lifecycle.** Available → Reserved (automatically, from 30 minutes before a confirmed reservation starts) → Occupied (reservation checked in, or walk-in seated directly from Available) → Needs Cleaning (automatically when the table's bill is closed in the Billing module, or manually by a Waiter/Host when the table has no open order) → Available (marked clean). A reservation that becomes No-show returns the table from Reserved to Available. No other transition is allowed. |
+| BR-RES-05 | **Table lifecycle.** Available → Reserved (automatically, from 30 minutes before a confirmed reservation starts) → Occupied (reservation checked in, from Reserved or, if the guests arrive early, straight from Available; or walk-in seated directly from Available) → Needs Cleaning (automatically when the table's bill is closed in the Billing module, or manually by a Waiter/Host when the table has no open order) → Available (marked clean). A No-show, a cancellation or a change of time or table returns the table from Reserved to Available. No other transition is allowed. |
 
 ## 6. Use cases (detailed)
 

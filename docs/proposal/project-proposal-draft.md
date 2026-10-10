@@ -83,9 +83,10 @@ staff roles.
 
 1. **Document review** — published research on restaurant reservations, no-shows and walk-ins [12], the course
    catalogue entry for this topic [2], requirements-engineering guidance [4], and use-case writing guidance [7].
-2. **Interview** — in Weeks 3–4, a semi-structured interview with the owner or staff of at least one restaurant in
-   Ho Chi Minh City about reservations, order taking, the kitchen and billing. The restaurant, the date and the
-   findings will be reported in Chapter 2 of the Final Report, and any requirement changes will be listed there.
+2. **Interview** — in Week 5 (12–18 October 2026; the date depends on the members' class schedules), a semi-structured
+   interview with the owner or staff of at least one restaurant in Ho Chi Minh City about reservations, orders, the kitchen and billing, confirming the times used by the business
+   rules (dining 90, turn 15, no-show 15, Reserved 30 minutes). The restaurant, date and findings will be recorded in
+   `/docs` and in Chapter 2 of the Final Report, with any requirement changes.
 3. **Observation** — if the restaurant agrees, observing the front of house and the kitchen during a busy period
    to see where orders are lost or delayed.
 4. **Team walkthroughs** — each module's use cases are walked through by the other two members to find gaps
@@ -134,7 +135,9 @@ one per member, that share one database and one set of users:
 
 ### 2.2 Functional requirements
 
-Priority: **Must** (needed to pass), **Should** (planned), **Could** (only if time allows).
+Priority: **Must** (needed to pass), **Should** (planned), **Could** (only if time allows). If time runs short, the
+Could requirements FR-19 and FR-20 are cut first, then the Should requirements FR-24, FR-10 and FR-06; any cut is
+reported in the Final Report.
 
 **Login and Table & Reservation — Kieu Bao Giang**
 
@@ -188,7 +191,7 @@ Priority: **Must** (needed to pass), **Should** (planned), **Could** (only if ti
 | NFR-03 | Performance | Marking an item out of stock is reflected on every open order screen within 5 seconds, without reloading the page. |
 | NFR-04 | Performance | A bill with up to 50 lines is displayed within 2 seconds; a shift report covering up to 300 bills is generated within 3 seconds. |
 | NFR-05 | Usability | A Waiter/Host can create a reservation in at most 3 steps, enter a standard 5-item order in at most 60 seconds, and record a single payment in at most 4 steps from the table screen. |
-| NFR-06 | Data integrity | When two users confirm the same table for overlapping times at the same moment, exactly one reservation is saved and the other user sees a conflict message. |
+| NFR-06 | Data integrity | When two users confirm the same table for overlapping times at the same moment, exactly one reservation is saved and the other user sees a conflict message. Technique: inside the booking transaction the table row is locked with `SELECT … FOR UPDATE` (JPA pessimistic write lock) before the overlap check; an automated test submits two bookings at the same moment and checks that exactly one is saved. |
 | NFR-07 | Data integrity | Sending an order is atomic: if saving fails, the order stays unsent, no ticket is created, and sending again never creates a duplicate ticket. |
 | NFR-08 | Data integrity | Recording the final payment and closing the bill happen in one database transaction; money is stored as integer VND, never as floating-point numbers. |
 | NFR-09 | Reliability | All data is stored in MySQL and is unchanged after the application is restarted. |
@@ -207,11 +210,11 @@ event handlers, and each has automated unit tests.
 | BR-02 | **Capacity fit.** A party is only assigned to a table whose capacity is at least the party size. | Giang |
 | BR-03 | **Clean before reuse.** A table in Needs Cleaning cannot be assigned until it is marked clean. | Giang |
 | BR-04 | **Waiting-list order.** Walk-ins are seated in arrival order; a later party goes first only if no earlier party fits the free table. | Giang |
-| BR-05 | **Table lifecycle.** Available → Reserved (from 30 minutes before a confirmed reservation) → Occupied (check-in or walk-in seated) → Needs Cleaning (automatically when the table's bill is closed, or manually when the table has no open order) → Available (marked clean). A No-show returns the table from Reserved to Available. No other transition is allowed. | Giang |
+| BR-05 | **Table lifecycle.** Available → Reserved (from 30 minutes before a confirmed reservation) → Occupied (check-in, also early from Available, or walk-in seated) → Needs Cleaning (automatically when the table's bill is closed, or manually when the table has no open order) → Available (marked clean). A No-show, a cancellation or a change of time or table returns the table from Reserved to Available. No other transition is allowed. | Giang |
 | BR-06 | **Course sequencing.** Within an order, items are sent in course order (Starter → Main → Dessert): an item of a later course cannot be sent while an item of an earlier course in the same order is still unsent. The kitchen display lists items by course, then by time sent. | Lam |
 | BR-07 | **Out of stock.** An out-of-stock item is removed from every order screen and cannot be added or sent; items already in sent tickets are not affected. | Lam |
 | BR-08 | **Lock after cooking starts.** Once a ticket item is In Progress it cannot be modified or cancelled. New items can still be added to the order and are sent as a new ticket. | Lam |
-| BR-09 | **Bill only when the kitchen is done.** A bill can be generated only when no ticket item of the order is New or In Progress. Generating the bill locks the order; to add items, the unpaid bill must be cancelled first, which is allowed only while no payment has been recorded. | Khoa |
+| BR-09 | **Bill only when the kitchen is done.** A bill can be generated only when no ticket item of the order is New or In Progress. Generating the bill locks the order; to add items, the unpaid bill must be cancelled first, which is allowed only while no payment has been recorded. A cancelled bill is kept with status Cancelled, so an order has at most one bill that is not cancelled. | Khoa |
 | BR-10 | **Even-split rounding.** For N shares, each share is `floor(total / N / 1,000) × 1,000` VND and the remainder is added to the first share, so the shares always add up exactly to the bill total. Example: 1,000,000 VND split 3 ways gives 334,000 + 333,000 + 333,000. | Khoa |
 | BR-11 | **Valid payments.** A payment amount must be greater than 0. Card and bank-transfer payments cannot exceed the amount remaining; a cash payment may exceed it, and the change is recorded. | Khoa |
 | BR-12 | **Closed bills are final.** A bill closes only when payments cover its total. A closed bill cannot be edited, deleted or receive further payments. | Khoa |
@@ -264,10 +267,10 @@ Week dates are Monday to Sunday; exact submission deadlines are those published 
 | 1 (14–20/9) | Form team, register topic, create repository and README | Giang (registration, repository); Lam, Khoa (review README) | Registration form; repository with `/src /docs /tests` |
 | 2 (21–27/9) | Requirements per module: FR, NFR, business rules, two detailed use cases | Giang: reservation and login; Lam: order and kitchen; Khoa: billing and reporting | Three requirement drafts in `/docs/requirements` |
 | 3 (28/9–4/10) | Merge drafts into the template; Chapter 1 and 4 (Giang); Chapter 2 technologies and work plan (Lam); Chapter 3 expected results and references (Khoa); final review against checklist 12.1 (all three, led by Giang) | Giang, Lam, Khoa as listed | **Project Proposal (PDF + DOCX) — 20%** |
-| 4 (5–11/10) | Shared layered architecture and ERD (led by Giang); class, use-case and sequence diagrams and wireframes for each module | Giang: reservation; Lam: order and kitchen; Khoa: billing | Diagrams and wireframes in `/docs` |
-| 5 (12–18/10) | Project skeleton, database schema, login (Giang); domain classes and repositories per module; basic CRUD | Giang: tables and reservations; Lam: menu and orders; Khoa: bills and shifts | Tag **v0.1** — application runs and connects to MySQL |
+| 4 (5–11/10) | Shared layered architecture and ERD (led by Giang); each member draws the class, use-case and sequence diagrams and wireframes of their own module, keeping the drafts and commit history as evidence | Giang: reservation; Lam: order and kitchen; Khoa: billing | Diagrams and wireframes in `/docs` |
+| 5 (12–18/10) | Restaurant interview (date set around class schedules) and requirement updates from its findings; project skeleton, database schema, login (Giang); domain classes and repositories per module; basic CRUD | Giang: tables and reservations; Lam: menu and orders; Khoa: bills and shifts | Tag **v0.1** — application runs and connects to MySQL |
 | 6 (19–25/10) | Input validation; shared test-case table format (Khoa); 5 test cases per module; cross code review | Giang reviews Khoa, Lam reviews Giang, Khoa reviews Lam | About 15 documented test cases |
-| 7 (26/10–1/11) | Business rules: BR-01 to BR-05 (Giang), BR-06 to BR-08 (Lam), BR-09 to BR-13 (Khoa), each with unit tests; Week 7 self-check (Appendix D) | Giang, Lam, Khoa as listed | Tag **v0.2**; self-check in `/docs` |
+| 7 (26/10–1/11) | Business rules: BR-01 to BR-05 (Giang), BR-06 to BR-08 (Lam), BR-09 to BR-13 (Khoa), each with unit tests, including the concurrent-booking test of NFR-06; Week 7 self-check (Appendix D) | Giang, Lam, Khoa as listed | Tag **v0.2**; self-check in `/docs` |
 | 8 (2–8/11) | Exception handling for each module; seed data with 50–200 realistic records (Lam); security check (Giang); report performance check (Khoa) | Giang, Lam, Khoa as listed | Updated diagrams and screenshots |
 | 9 (9–15/11) | Feature freeze; end-to-end test of the full visit (Giang leads); run guide (Khoa); each member writes their module in report Chapter 3 | Giang, Lam, Khoa as listed | Tag **v1.0**; draft report |
 | 10 (16–22/11) | Chapter 1 and 4 (Giang), Chapter 2 (Lam), appendices and test log (Khoa); repository clean-up; checklist 12.2 | Giang, Lam, Khoa as listed | **Final Project Report (PDF + DOCX) — 80%** |
@@ -288,19 +291,19 @@ Week dates are Monday to Sunday; exact submission deadlines are those published 
 
 ### 3.2 Data
 
-The domain model is expected to contain about 17 classes, excluding UI and utility classes:
+The domain model is expected to contain about 19 classes, excluding UI and utility classes (diagrams in `docs/diagrams`):
 
 | Module | Main classes |
 |---|---|
 | Shared | User (with role) |
-| Table & Reservation | TableSection, DiningTable, Reservation, WaitlistEntry |
-| Order & Kitchen | MenuCategory, MenuItem, Order, OrderLine, KitchenTicket, KitchenTicketItem |
+| Table & Reservation | TableSection, DiningTable, Reservation, WaitlistEntry, ReservationSettings |
+| Order & Kitchen | MenuCategory, MenuItem, Order, OrderLine, KitchenTicket, KitchenTicketItem, ItemStatusChange |
 | Billing & Reporting | Bill, BillLine, BillShare, Payment, Shift, ShiftReport |
 
 Status values (table status, reservation status, ticket item status, bill status) and Course are enumerations.
 `TABLE` and `ORDER` are reserved words in SQL, so the database tables will be named `dining_table` and
 `customer_order`. Key relationships: a reservation belongs to one table; an order belongs to one table visit; a
-kitchen ticket belongs to one order; a bill is generated from one order; a payment belongs to one bill and one
+kitchen ticket belongs to one order; every status change of a ticket item is kept as an ItemStatusChange; a bill is generated from one order; a payment belongs to one bill and one
 shift.
 
 ### 3.3 Screens
@@ -404,6 +407,7 @@ flows numbered by the step they branch from, and postcondition.
 - **Precondition:** The Manager is logged in.
 - **Main flow:** 1. The Manager opens Table management. 2. The Manager adds or edits a table: number, capacity,
   section. 3. The system validates the input and saves it. 4. The Manager can deactivate a table.
+  5. The Manager can change the default dining duration and turn-time used by BR-01 (ReservationSettings).
 - **Alternative flows:** 3a. The table number already exists, or the capacity is outside 1–20: the system shows an
   error and does not save. 4a. The table has future reservations: the system refuses to deactivate it and shows
   how many reservations exist.
@@ -486,7 +490,7 @@ flows numbered by the step they branch from, and postcondition.
   Progress; the item is now locked for the waiter (BR-08). 3. When the dish is done, sets it to Ready. 4. The
   Waiter/Host sees that the item is ready.
 - **Alternative flows:** 3a. A dish is sent back: Kitchen Staff sets it back to In Progress with a reason; the
-  status history is kept.
+  status history is kept (ItemStatusChange).
 - **Postcondition:** Item statuses are updated on the kitchen display and the order screen.
 
 ### UC-10: Mark menu item out of stock or back in stock
@@ -516,8 +520,8 @@ flows numbered by the step they branch from, and postcondition.
   New or In Progress (BR-09). 3. The system copies the order lines into bill lines, calculates the total and locks
   the order. 4. The bill is displayed with total, paid and remaining amounts.
 - **Alternative flows:** 2a. Items are still being prepared: the system refuses and lists them. 1a. The table has
-  no order: the system refuses. 4a. The guests want to order more: the Waiter/Host cancels the unpaid bill, which is
-  allowed only if no payment has been recorded, and the order is unlocked.
+  no order: the system refuses. 4a. The guests want to order more: the Waiter/Host cancels the unpaid bill (it is kept
+  with status Cancelled), which is allowed only if no payment has been recorded, and the order is unlocked.
 - **Postcondition:** An open bill exists for the table.
 
 ### UC-13: Split bill
@@ -560,16 +564,20 @@ flows numbered by the step they branch from, and postcondition.
 
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Analysing the course documents; proposing the ten-week timeline and task split | Planning (Week 1) | **[TODO — team]** |
-| Claude (Anthropic), via Claude Code | Drafting requirements, business rules and use cases for the Table & Reservation module | Chapter 2, Appendix A (UC-01 to UC-06) | **[TODO — Giang]** |
-| Claude (Anthropic), via Claude Code | Reviewing the three module drafts against the Guidelines; translating the Order & Kitchen draft into English; proposing measurable NFRs and business rules for Billing | Chapter 2, Appendix A | **[TODO — Lam, Khoa]** |
-| Claude (Anthropic), via Claude Code | Assembling this proposal draft from the module drafts | Chapters 1–4 | **[TODO — team]** |
-| Claude (Anthropic), via Claude Code | Searching for a published source on restaurant no-shows and walk-ins | §1.1, reference [12] | Title, authors, journal, volume, pages and DOI checked against the published PDF of the article |
+| Claude (Anthropic), via Claude Code | Analysing the course documents; proposing the ten-week timeline and task split | Planning (Week 1) | The team compared the proposed timeline and task split with the course Guidelines and rubric, agreed the module assignments in a group meeting and adjusted the plan to each member's responsibilities. Submission deadlines were checked directly on E-learning. |
+| Claude (Anthropic), via Claude Code | Drafting requirements, business rules and use cases for the Table & Reservation module | Chapter 2; Appendix A (UC-01 to UC-06) | Kieu Bao Giang read every requirement, business rule and use case of the module and compared them with the course Guidelines and the Week 2 task list. The drafts were reviewed in several rounds and only agreed changes were kept, for example: a cancelled or moved reservation returns the table to Available (BR-05), the Manager can no longer override table status, and early check-in was added to the table lifecycle. The BR-01 overlap rule was recalculated by hand with sample times. The module draft was committed from Giang's own GitHub account. |
+| Claude (Anthropic), via Claude Code | Lam wrote the original Order & Kitchen draft in Vietnamese (10 FRs, 5 NFRs, BR-06 to BR-08, UC-08 and UC-09) and Khoa wrote the original Billing draft (5 FRs, 5 NFRs, UC-14 and UC-15). Claude translated Lam's draft into English and made its NFRs measurable; for Billing it proposed measurable NFRs, business rules BR-09 to BR-13 and the expansion to FR-21 to FR-28; it also drafted the specifications of UC-07 and UC-10 to UC-13 | Chapter 2; Appendix A (UC-07 to UC-15) | Lam compared the English Order & Kitchen text with the original Vietnamese draft to check meaning and terminology. Khoa checked that the Billing NFRs are measurable and the business rules testable and consistent with the use cases. Both re-read their module against the team proposal and the Guidelines checklist and corrected inconsistencies before the team review. |
+| Claude (Anthropic), via Claude Code | Drafting and assembling the proposal from the module drafts and formatting it in this template | Chapters 1–4 | All three members read the assembled proposal in full against their own module drafts and the course Guidelines, checked that the requirements, business rules and use cases were consistent and that numbering, captions and references were correct, and corrected the inconsistencies found before submission. |
+| Claude (Anthropic), via Claude Code | Searching for a published source on restaurant no-shows and walk-ins | §1.1, reference [12] | Title, authors, journal, volume, pages and DOI checked against the published PDF of the article. |
+| Claude (Anthropic), via Claude Code | Generating the diagrams of Figure 2.1 and Appendix C (Mermaid) from the requirements, to cross-check the members' own diagrams and give them a readable layout | Figure 2.1; Appendix C | Compared element by element with the diagrams each member drew for their own module (Giang, Lam, Khoa): they match. The members' own diagrams are kept in the repository as evidence. |
+
+From Week 4 onward, in line with the course AI policy, each member produces the requirement changes, diagrams and design
+models of their own module (use-case, class and sequence diagrams, their part of the ERD and the wireframes) and keeps
+the drafts and the commit history as evidence. AI tools are used only for outlining, editing and formatting; every such
+use is declared in the Final Report, and each member is ready to explain any requirement, rule or use case of their
+module in an oral check.
 
 We declare that we understand every part of the submitted work and can explain it on request.
-
-**[TODO]** Fill in the last column honestly, for example "each member re-read every requirement of their
-module, corrected X and Y, and confirmed the rules with restaurant staff". Add any other AI tool a member used.
 
 ---
 
@@ -584,4 +592,4 @@ module, corrected X and Y, and confirmed the rules with restaurant staff". Add a
 - [ ] Figures and tables numbered and captioned; references in IEEE style, cited in the text
 - [ ] 8–15 pages without cover and appendices
 - [ ] README updated; lecturer has access to the repository
-- [ ] PDF and DOCX named `StudentID_FullName_ApplicationProgrammingProject`, opened again after upload
+- [ ] PDF and DOCX named `Project-Proposal-TeamLeaderName-TeamLeaderID` (`Project-Proposal-KieuBaoGiang-2474802010095`), opened again after upload
