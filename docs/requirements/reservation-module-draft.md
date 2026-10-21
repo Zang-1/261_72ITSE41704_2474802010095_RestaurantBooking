@@ -2,7 +2,7 @@
 
 **Module:** Table & Reservation (also owns: login and role-based access)
 **Owner:** Kieu Bao Giang (2474802010095)
-**Status:** Revised draft (Week 2) — merged into the Project Proposal in `docs/proposal/project-proposal-draft.md`
+**Status:** Revised draft (Week 2), updated after the restaurant interview of 18/10/2026 (`docs/interview/restaurant-interview-notes.md`, findings F3, F5; change records CR-01 and CR-02 in `requirement-changes.md`). The submitted Proposal still shows the earlier values; the Final Report uses the values below.
 
 > IDs use the prefix `RES` / `AUTH` so the three module drafts can be merged without collisions.
 > In the Proposal they are renumbered FR-01, FR-02 … (see the mapping in the Proposal, section 2.2).
@@ -42,7 +42,7 @@
 | FR-RES-02 | The system shall allow a Waiter/Host to search for available tables by date, start time and party size, returning only tables whose capacity is greater than or equal to the party size and that have no overlapping reservation. | Must |
 | FR-RES-03 | The system shall allow a Waiter/Host to create a reservation for a selected table with guest name, phone number, party size, date, start time and an optional note. The reservation shall be rejected if it overlaps another reservation on the same table (BR-RES-01). | Must |
 | FR-RES-04 | The system shall allow a Waiter/Host to modify or cancel a reservation before its start time, and to check in a reservation when the guests arrive. Cancelling releases the time slot immediately; checking in sets the table to Occupied. | Must |
-| FR-RES-05 | The system shall automatically mark a reservation as No-show when the guests have not checked in 15 minutes after the start time, and release the table. | Should |
+| FR-RES-05 | The system shall automatically mark a reservation as No-show when the guests have not checked in 45 minutes after the start time, and release the table. Between 30 and 45 minutes late the reservation stays Confirmed so that staff can call the guest. | Should |
 | FR-RES-06 | The system shall allow a Waiter/Host to add a walk-in party (name, party size, phone number) to a waiting list, ordered by arrival time, and show each party's position. | Must |
 | FR-RES-07 | The system shall allow a Waiter/Host to seat the first waiting party whose size fits a table that has just become Available, and remove that party from the waiting list. | Must |
 | FR-RES-08 | The system shall enforce the table status lifecycle defined in BR-RES-05. A table in Needs Cleaning cannot be assigned to any reservation or walk-in until a Waiter/Host marks it clean. | Must |
@@ -65,7 +65,7 @@ Implemented in the service layer (not in UI handlers) and proven with test cases
 
 | ID | Rule |
 |---|---|
-| BR-RES-01 | **No double booking.** Two bookings on the same table overlap if `startA < endB + turnTime` and `startB < endA + turnTime`, where `end = start + diningDuration`. An overlapping reservation is rejected. The same check applies when seating a walk-in: a walk-in cannot be seated at a table that has a reservation starting within the next dining duration plus turn-time. Defaults: dining duration 90 minutes, turn-time 15 minutes (configurable by the Manager). |
+| BR-RES-01 | **No double booking.** Two bookings on the same table overlap if `startA < endB + turnTime` and `startB < endA + turnTime`, where `end = start + diningDuration`. An overlapping reservation is rejected. The same check applies when seating a walk-in: a walk-in cannot be seated at a table that has a reservation starting within the next dining duration plus turn-time. Defaults: dining duration 180 minutes, turn-time 15 minutes (configurable by the Manager; values confirmed in the interview, F3 and F4). |
 | BR-RES-02 | **Capacity fit.** A party can only be assigned to a table whose capacity is greater than or equal to the party size. |
 | BR-RES-03 | **Clean before reuse.** A table becomes Available only after it is marked clean; it cannot be assigned while in Needs Cleaning. |
 | BR-RES-04 | **Waiting-list order.** Walk-ins are served in arrival order; a later party may be seated first only if no earlier party fits the free table. |
@@ -134,7 +134,7 @@ Specifications of all use cases are in Appendix A of the Proposal draft.
 
 ## 8. Cross-module decisions (proposed — confirm at the team meeting)
 
-1. Dining duration 90 minutes and turn-time 15 minutes are defaults the Manager can change; they do not depend on party size.
+1. Dining duration 180 minutes and turn-time 15 minutes are defaults the Manager can change; they do not depend on party size (confirmed in the interview).
 2. Check-in (Reserved → Occupied) belongs to this module; the Order module starts from an Occupied table.
 3. When the Billing module closes a table's bill, the table moves to Needs Cleaning automatically (BR-RES-05).
 4. There is no online booking; the system is for staff only.
