@@ -39,3 +39,14 @@ export function groupBySection(tables) {
   }
   return [...groups.entries()];
 }
+
+export const COURSE_LABELS = {
+  STARTER: 'Starter',
+  MAIN: 'Main',
+  DESSERT: 'Dessert',
+};
+
+/** 75000 -> "75.000 ₫" */
+export function formatPrice(amount) {
+  return `${new Intl.NumberFormat('vi-VN').format(amount)} ₫`;
+}

@@ -26,6 +26,7 @@ export default function Layout() {
             {frontOfHouse && <NavLink to="/reservations">Reservations</NavLink>}
             {frontOfHouse && <NavLink to="/waitlist">Waiting list</NavLink>}
             {role === 'MANAGER' && <NavLink to="/tables">Tables</NavLink>}
+            {role === 'MANAGER' && <NavLink to="/menu">Menu</NavLink>}
             {(role === 'KITCHEN_STAFF' || role === 'MANAGER') && <NavLink to="/kitchen">Kitchen</NavLink>}
           </nav>
         )}

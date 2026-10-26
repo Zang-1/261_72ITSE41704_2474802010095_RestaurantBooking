@@ -7,6 +7,7 @@ import ReservationsPage from './pages/ReservationsPage.jsx';
 import WaitlistPage from './pages/WaitlistPage.jsx';
 import TablesPage from './pages/TablesPage.jsx';
 import KitchenPage from './pages/KitchenPage.jsx';
+import MenuPage from './pages/MenuPage.jsx';
 
 const FRONT_OF_HOUSE = ['WAITER_HOST', 'MANAGER'];
 
@@ -21,6 +22,7 @@ export default function App() {
         <Route path="/reservations" element={<RequireRole roles={FRONT_OF_HOUSE}><ReservationsPage /></RequireRole>} />
         <Route path="/waitlist" element={<RequireRole roles={FRONT_OF_HOUSE}><WaitlistPage /></RequireRole>} />
         <Route path="/tables" element={<RequireRole roles={['MANAGER']}><TablesPage /></RequireRole>} />
+        <Route path="/menu" element={<RequireRole roles={['MANAGER']}><MenuPage /></RequireRole>} />
         <Route path="/kitchen" element={<RequireRole roles={['KITCHEN_STAFF', 'MANAGER']}><KitchenPage /></RequireRole>} />
       </Route>
       <Route
