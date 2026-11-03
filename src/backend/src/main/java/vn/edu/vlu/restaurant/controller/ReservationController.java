@@ -60,6 +60,12 @@ public class ReservationController {
         return reservationService.modify(id, request);
     }
 
+    @PostMapping("/reservations/{id}/check-in")
+    @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
+    public ReservationResponse checkIn(@PathVariable Long id) {
+        return reservationService.checkIn(id);
+    }
+
     @PostMapping("/reservations/{id}/cancel")
     @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
     public ReservationResponse cancel(@PathVariable Long id) {

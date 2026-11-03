@@ -5,6 +5,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -74,6 +75,14 @@ public class GlobalExceptionHandler {
         log.warn("Data integrity violation: {}", ex.getMostSpecificCause().getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of("The change conflicts with existing data. Refresh and try again."));
+    }
+
+    /** Another request holds the table row lock for too long (NFR-06): ask the user to retry, never a 500. */
+    @ExceptionHandler(PessimisticLockingFailureException.class)
+    public ResponseEntity<ApiError> handleLockTimeout(PessimisticLockingFailureException ex) {
+        log.warn("Lock timeout: {}", ex.getMostSpecificCause().getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of("Someone else is changing this table right now. Please try again."));
     }
 
     /** Role checks from @PreAuthorize must stay 403, not fall through to the generic handler. */

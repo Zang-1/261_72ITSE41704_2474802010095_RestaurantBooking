@@ -17,4 +17,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             LocalDateTime from, LocalDateTime to);
 
     long countByTableIdAndStatusAndStartTimeAfter(Long tableId, ReservationStatus status, LocalDateTime after);
+
+    List<Reservation> findByTableIdAndStatusOrderByStartTimeAsc(Long tableId, ReservationStatus status);
+
+    /** Bookings that start strictly inside (from, to): the BR-01 overlap window around a new start time. */
+    @EntityGraph(attributePaths = "table")
+    List<Reservation> findByStatusAndStartTimeGreaterThanAndStartTimeLessThan(ReservationStatus status, LocalDateTime from, LocalDateTime to);
+
+    @EntityGraph(attributePaths = "table")
+    List<Reservation> findByStatusAndStartTimeBetweenOrderByStartTimeAsc(ReservationStatus status, LocalDateTime from, LocalDateTime to);
 }
