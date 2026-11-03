@@ -17,6 +17,7 @@ import vn.edu.vlu.restaurant.dto.SectionRequest;
 import vn.edu.vlu.restaurant.dto.SectionResponse;
 import vn.edu.vlu.restaurant.dto.TableRequest;
 import vn.edu.vlu.restaurant.dto.TableResponse;
+import vn.edu.vlu.restaurant.dto.WalkInRequest;
 import vn.edu.vlu.restaurant.service.TableService;
 
 /** Manage tables and sections (UC-02). Viewing is open to front-of-house staff; changes need a Manager. */
@@ -67,6 +68,24 @@ public class TableController {
     @PreAuthorize(AccessRules.MANAGER)
     public TableResponse deactivateTable(@PathVariable Long id) {
         return tableService.deactivateTable(id);
+    }
+
+    @PostMapping("/tables/{id}/needs-cleaning")
+    @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
+    public TableResponse markNeedsCleaning(@PathVariable Long id) {
+        return tableService.markNeedsCleaning(id);
+    }
+
+    @PostMapping("/tables/{id}/clean")
+    @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
+    public TableResponse markClean(@PathVariable Long id) {
+        return tableService.markClean(id);
+    }
+
+    @PostMapping("/tables/{id}/seat-walk-in")
+    @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
+    public TableResponse seatWalkIn(@PathVariable Long id, @Valid @RequestBody WalkInRequest request) {
+        return tableService.seatWalkIn(id, request.partySize());
     }
 
     @PostMapping("/tables/{id}/activate")

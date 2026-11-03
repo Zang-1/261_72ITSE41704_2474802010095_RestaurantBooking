@@ -6,27 +6,40 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vn.edu.vlu.restaurant.domain.DiningTable;
 import vn.edu.vlu.restaurant.domain.WaitlistEntry;
+import vn.edu.vlu.restaurant.dto.SeatedPartyResponse;
 import vn.edu.vlu.restaurant.dto.WaitlistEntryResponse;
 import vn.edu.vlu.restaurant.dto.WaitlistRequest;
 import vn.edu.vlu.restaurant.exception.BusinessRuleException;
 import vn.edu.vlu.restaurant.exception.NotFoundException;
 import vn.edu.vlu.restaurant.repository.WaitlistEntryRepository;
 
-/**
- * Walk-in waiting list (FR-07, UC-05). Seating the first party that fits (FR-08, BR-04) is added in
- * Week 7 together with the table lifecycle.
- */
+/** Walk-in waiting list (FR-07, FR-08, UC-05) and seating in arrival order (BR-04). */
 @Service
 @Transactional
 public class WaitlistService {
 
     private final WaitlistEntryRepository waitlistRepository;
+    private final TableService tableService;
     private final Clock clock;
 
-    public WaitlistService(WaitlistEntryRepository waitlistRepository, Clock clock) {
+    public WaitlistService(WaitlistEntryRepository waitlistRepository, TableService tableService, Clock clock) {
         this.waitlistRepository = waitlistRepository;
+        this.tableService = tableService;
         this.clock = clock;
+    }
+
+    /** BR-04: seats the earliest waiting party that fits the table; a later party goes first only if no earlier one fits. */
+    public SeatedPartyResponse seatNext(Long tableId) {
+        DiningTable table = tableService.lockTable(tableId);
+        WaitlistEntry entry = waitlistRepository.findBySeatedTableIsNullOrderByArrivedAtAscIdAsc().stream()
+                .filter(e -> table.canSeat(e.getPartySize()))
+                .findFirst()
+                .orElseThrow(() -> new BusinessRuleException("No waiting party fits table " + table.getNumber()));
+        tableService.seatParty(table, entry.getPartySize());
+        entry.seat(table);
+        return new SeatedPartyResponse(entry.getPartyName(), entry.getPartySize(), table.getNumber());
     }
 
     /** Parties still waiting, numbered 1, 2, 3 ... in arrival order. */

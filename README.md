@@ -79,6 +79,10 @@ Seeding can be switched off with `app.seed.enabled=false`.
 - `docs/diagrams/` — UML diagrams and ERDs, one folder per member
 - `docs/progress/` — weekly progress notes per member
 - `docs/interview/` — restaurant interview questions and notes
+- `docs/report/` — Final Report drafts (chapters and appendices)
+- `docs/screenshots/` — screenshots used in the report
+- `docs/design/ui-demo.html` — clickable UI design preview (open it in a browser)
+- `docs/self-check-week7.md`, `docs/security-check.md` — Week 7 rubric self-check and Week 8 security check
 - `tests/` — documented test cases with expected and actual results
 
 ## Team Workflow
@@ -91,11 +95,23 @@ Seeding can be switched off with `app.seed.enabled=false`.
 - Release tags: `v0.1` (Week 5), `v0.2` (Week 7), `v1.0` (Week 9).
 
 ## Current Status
-Week 6 (21/10/2026)
-- Done: Project Proposal submitted (Week 3); design diagrams for all three modules (Week 4).
-- Done: application skeleton (Spring Boot + React), MySQL schema via Flyway, login with three roles,
-  Table & Reservation CRUD (tables, sections, reservations, waiting list) with input validation and
-  16 documented test cases (`tests/test-cases-table-reservation.md`).
-- Done: restaurant interview (18/10/2026); requirement changes CR-01 to CR-05 in `docs/requirements/requirement-changes.md`.
-- Next: Order & Kitchen and Billing modules start on this skeleton; release tag `v0.1`;
-  Week 7 business rules BR-01 to BR-13 with unit tests.
+Week 8 (03/11/2026)
+
+**Done**
+- Project Proposal (Week 3) and design diagrams for all three modules (Week 4).
+- Restaurant interview (18/10/2026) and requirement changes CR-01 to CR-05.
+- Skeleton, MySQL schema via Flyway, and login with three roles (Weeks 5–6).
+- Table & Reservation business rules BR-01 to BR-05:
+  - no double booking, with a row lock against simultaneous bookings;
+  - capacity;
+  - clean before reuse;
+  - waiting-list order;
+  - table lifecycle, check-in, and no-show after 45 minutes.
+- 29 documented test cases for Table & Reservation (`tests/test-cases-table-reservation.md`).
+- Lam: menu management and order entities (V2 migration).
+- Automated tests: 79, all passing (`mvn test`).
+
+**Next**
+- Order & Kitchen and Billing business rules.
+- Tag `v0.2`, then `v1.0` at feature freeze (Week 9).
+- Final Report drafts in `docs/report/`.

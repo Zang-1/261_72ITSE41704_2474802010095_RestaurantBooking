@@ -50,6 +50,10 @@ public class WaitlistEntry {
         return seatedTable == null;
     }
 
+    public void seat(DiningTable table) {
+        this.seatedTable = table;
+    }
+
     public Long getId() {
         return id;
     }

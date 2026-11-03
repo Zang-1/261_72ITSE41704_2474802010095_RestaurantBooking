@@ -24,7 +24,8 @@ findings F1–F12).
 - FR-17 and BR-07 out-of-stock (F9); BR-08 lock after cooking starts (F10); FR-06 no-show handling itself (F1).
 
 ## Not requirements, but affected
-- **Seed data:** 4 sections (Sweet Zone, Love to Love, VIP, Mây rooftop) and 27 tables (F8). Seats per table
+- **Seed data:** 4 sections with invented names (Hearth Hall, Duo Lounge, Cellar Room, Sky Terrace) and 27 tables (F8),
+  laid out like the interviewed restaurant; the real names are not used, to keep it anonymous. Seats per table
   are a team assumption because they were not recorded in the interview.
 - **Final Report, Chapter 2 (current situation):** reservations arrive through social-media platforms; the
   restaurant already uses an ordering app, but it is not linked to reservations or billing; out-of-stock dishes

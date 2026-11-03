@@ -11,10 +11,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import vn.edu.vlu.restaurant.exception.BusinessRuleException;
 
 /**
  * A physical table in the dining room. Named DiningTable because TABLE is a reserved word in SQL.
- * Status changes (BR-05) are added in Week 7 through changeStatus(TableStatus).
+ * Its status only moves along the lifecycle of BR-05 (docs/diagrams/giang/08-state-1-table.png).
  */
 @Entity
 @Table(name = "dining_table")
@@ -63,6 +64,36 @@ public class DiningTable {
     /** Capacity fit: a party only fits a table with at least as many seats (BR-02). */
     public boolean canSeat(int partySize) {
         return partySize <= capacity;
+    }
+
+    /**
+     * Table lifecycle (BR-05): Available → Reserved → Occupied → Needs cleaning → Available.
+     * Available → Occupied covers walk-ins and early check-in; Reserved → Available covers a no-show,
+     * a cancellation or a moved booking. Any other move is refused.
+     */
+    public void changeStatus(TableStatus target) {
+        if (target == status) {
+            return;
+        }
+        boolean allowed = switch (status) {
+            case AVAILABLE -> target == TableStatus.RESERVED || target == TableStatus.OCCUPIED;
+            case RESERVED -> target == TableStatus.OCCUPIED || target == TableStatus.AVAILABLE;
+            case OCCUPIED -> target == TableStatus.NEEDS_CLEANING;
+            case NEEDS_CLEANING -> target == TableStatus.AVAILABLE;
+        };
+        if (!allowed) {
+            throw new BusinessRuleException("Table " + number + " cannot go from " + label(status) + " to " + label(target));
+        }
+        status = target;
+    }
+
+    private static String label(TableStatus s) {
+        return switch (s) {
+            case AVAILABLE -> "Available";
+            case RESERVED -> "Reserved";
+            case OCCUPIED -> "Occupied";
+            case NEEDS_CLEANING -> "Needs cleaning";
+        };
     }
 
     public void deactivate() {

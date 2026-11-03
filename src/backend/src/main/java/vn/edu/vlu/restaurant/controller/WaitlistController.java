@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import vn.edu.vlu.restaurant.dto.SeatedPartyResponse;
 import vn.edu.vlu.restaurant.dto.WaitlistEntryResponse;
 import vn.edu.vlu.restaurant.dto.WaitlistRequest;
 import vn.edu.vlu.restaurant.service.WaitlistService;
@@ -37,6 +39,12 @@ public class WaitlistController {
     @ResponseStatus(HttpStatus.CREATED)
     public WaitlistEntryResponse add(@Valid @RequestBody WaitlistRequest request) {
         return waitlistService.add(request);
+    }
+
+    /** POST /api/waitlist/seat-next?tableId=5: seats the earliest party that fits table 5 (FR-08, BR-04). */
+    @PostMapping("/seat-next")
+    public SeatedPartyResponse seatNext(@RequestParam Long tableId) {
+        return waitlistService.seatNext(tableId);
     }
 
     @DeleteMapping("/{id}")

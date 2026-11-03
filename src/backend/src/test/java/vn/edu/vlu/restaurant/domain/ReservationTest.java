@@ -54,6 +54,55 @@ class ReservationTest {
         assertThrows(IllegalArgumentException.class, () -> new DiningTable(99, 0, indoor));
     }
 
+    /** BR-01 boundary with the defaults: 180 dining + 15 turn = a 195-minute block. */
+    @Test
+    void bookingsOverlapInsideTheBlockOnly() {
+        ReservationSettings settings = new ReservationSettings(180, 15);
+        assertTrue(Reservation.overlap(start, start.plusMinutes(194), settings));
+        assertFalse(Reservation.overlap(start, start.plusMinutes(195), settings));
+        assertTrue(Reservation.overlap(start, start.minusMinutes(194), settings));
+        assertFalse(Reservation.overlap(start, start.minusMinutes(195), settings));
+    }
+
+    @Test
+    void checkInOpensThirtyMinutesBefore() {
+        Reservation early = newReservation();
+        BusinessRuleException ex = assertThrows(BusinessRuleException.class, () -> early.checkIn(start.minusMinutes(31)));
+        assertEquals("Check-in opens 30 minutes before the booking", ex.getMessage());
+
+        Reservation onTime = newReservation();
+        onTime.checkIn(start.minusMinutes(30));
+        assertEquals(ReservationStatus.CHECKED_IN, onTime.getStatus());
+    }
+
+    @Test
+    void lateGuestsCanCheckInUntilTheNoShowLimit() {
+        Reservation late = newReservation();
+        late.checkIn(start.plusMinutes(44));
+        assertEquals(ReservationStatus.CHECKED_IN, late.getStatus());
+
+        Reservation tooLate = newReservation();
+        assertThrows(BusinessRuleException.class, () -> tooLate.checkIn(start.plusMinutes(45)));
+    }
+
+    @Test
+    void noShowAfterFortyFiveMinutes() {
+        Reservation reservation = newReservation();
+        reservation.markNoShow(start.plusMinutes(44));
+        assertEquals(ReservationStatus.CONFIRMED, reservation.getStatus());
+
+        reservation.markNoShow(start.plusMinutes(45));
+        assertEquals(ReservationStatus.NO_SHOW, reservation.getStatus());
+    }
+
+    @Test
+    void checkedInReservationIsNeverANoShow() {
+        Reservation reservation = newReservation();
+        reservation.checkIn(start);
+        reservation.markNoShow(start.plusHours(2));
+        assertEquals(ReservationStatus.CHECKED_IN, reservation.getStatus());
+    }
+
     private Reservation newReservation() {
         return new Reservation("RABC2345", table, "Ngo Minh Tuan", "0909876543", 3, start, null);
     }

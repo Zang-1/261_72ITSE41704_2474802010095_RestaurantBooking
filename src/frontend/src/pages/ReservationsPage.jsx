@@ -30,6 +30,16 @@ export default function ReservationsPage() {
     }
   }
 
+  async function handleCheckIn(reservation) {
+    try {
+      const saved = await api.post(`/reservations/${reservation.id}/check-in`);
+      setMessage(`${saved.guestName} checked in at table ${saved.tableNumber}.`);
+      load();
+    } catch (err) {
+      setError(err);
+    }
+  }
+
   function handleSaved(saved, isNew) {
     setEditing(null);
     setMessage(isNew
@@ -87,6 +97,7 @@ export default function ReservationsPage() {
                 <td className="actions">
                   {r.status === 'CONFIRMED' && (
                     <>
+                      <button type="button" className="primary" onClick={() => { setMessage(''); handleCheckIn(r); }}>Check in</button>
                       <button type="button" onClick={() => { setMessage(''); setEditing(r); }}>Edit</button>
                       <button type="button" className="danger" onClick={() => handleCancel(r)}>Cancel</button>
                     </>
