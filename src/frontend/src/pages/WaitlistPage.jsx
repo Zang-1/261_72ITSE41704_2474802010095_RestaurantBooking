@@ -48,6 +48,7 @@ export default function WaitlistPage() {
   return (
     <>
       <h1>Waiting list</h1>
+      <p className="muted">When a table frees up, press "Seat next waiting" on the Floor page: it seats the earliest party that fits (BR-04).</p>
       <form className="card" onSubmit={handleAdd} noValidate>
         <h2>Add a walk-in party</h2>
         <div className="row">
