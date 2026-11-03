@@ -59,14 +59,15 @@ public class DataSeeder implements ApplicationRunner {
 
     /**
      * Layout of the restaurant interviewed on 18/10/2026 (docs/interview, finding F8): four areas and
-     * 27 tables, numbered area by area. Seats per table were not recorded, so the capacities are a team assumption.
+     * 27 tables, numbered area by area. Area names are invented to keep the restaurant anonymous, and seats
+     * per table were not recorded, so the capacities are a team assumption.
      */
     private void seedTables() {
         int number = 1;
-        number = seedSection("Sweet Zone", new int[] {2, 2, 4, 4, 4, 4, 6, 6}, number);      // tables 1-8
-        number = seedSection("Love to Love", new int[] {2, 2, 2, 2, 2, 2, 4, 4}, number);    // tables 9-16
-        number = seedSection("VIP", new int[] {8, 8, 10, 10, 12}, number);                   // tables 17-21
-        number = seedSection("Mây (Rooftop)", new int[] {2, 2, 4, 4, 6, 6}, number);         // tables 22-27
+        number = seedSection("Hearth Hall", new int[] {2, 2, 4, 4, 4, 4, 6, 6}, number);  // tables 1-8, main hall
+        number = seedSection("Duo Lounge", new int[] {2, 2, 2, 2, 2, 2, 4, 4}, number);   // tables 9-16, couples
+        number = seedSection("Cellar Room", new int[] {8, 8, 10, 10, 12}, number);        // tables 17-21, VIP room
+        number = seedSection("Sky Terrace", new int[] {2, 2, 4, 4, 6, 6}, number);        // tables 22-27, rooftop
         log.info("Seeded 4 sections and {} tables", number - 1);
     }
 

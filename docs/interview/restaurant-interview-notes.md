@@ -7,7 +7,7 @@ from the answers are listed at the end.
 | Field | Entry |
 |---|---|
 | Date and time | Sunday 18/10/2026, 17:00 |
-| Restaurant | A steak and pasta restaurant on Phan Van Tri Street, Go Vap District, Ho Chi Minh City (name not recorded) |
+| Restaurant | A steak and pasta restaurant in Go Vap District, Ho Chi Minh City (name and address not recorded to keep it anonymous) |
 | People interviewed | Two staff members: a cashier and a waiter |
 | Interviewers | Kieu Bao Giang, Tang Thoai Lam, Nguyen Nam Khoa |
 | Method | In person, at the restaurant |
@@ -32,8 +32,9 @@ from the answers are listed at the end.
    - Answer: Guests with a reservation have priority. Walk-ins can only take tables that are free; otherwise
      they wait or are told there is no table. Waiting walk-ins are served in arrival order.
 7. How many tables and seats do you have, and are they in different areas (indoor, terrace, VIP)?
-   - Answer (from memory, tables were not counted): four areas — Sweet Zone (8 tables), Love to Love
-     (tables 9 to 16), VIP (5 tables) and Mây, a rooftop area (6 tables); about 27 tables in total.
+   - Answer (from memory, tables were not counted): four named areas — a main hall (8 tables), a couples area
+     (tables 9 to 16), a VIP room (5 tables) and a rooftop area (6 tables); about 27 tables in total.
+     The real area names are not recorded; the project uses invented names (Hearth Hall, Duo Lounge, Cellar Room, Sky Terrace).
      Seats per table were not recorded.
 
 ### Orders and kitchen (Lam)
@@ -64,7 +65,7 @@ Status: changes agreed on 21/10/2026 and recorded in `docs/requirements/requirem
 | F5 | Late guests are held until 45 minutes, with a phone reminder after 30 minutes (Q4) | FR-06, BR-05 (Giang) | CR-01: no-show threshold 15 → **45 minutes** |
 | F6 | Guests may arrive up to 30 minutes early; the table is kept free 30 minutes before (Q4, Q5) | BR-05 (Giang) | No change — Reserved from 30 minutes before; early check-in already allowed |
 | F7 | Reserved guests have priority; walk-ins take free tables or wait, in arrival order (Q6) | BR-01, BR-04, FR-07 (Giang) | No change. The BR-04 exception (a later party that fits a small free table goes first) was not confirmed by the restaurant |
-| F8 | Four areas, about 27 tables (Q7) | Seed data (Giang) | Seed data now has 4 sections and 27 tables (was 3 sections, 16 tables); seats per table are a team assumption |
+| F8 | Four areas, about 27 tables (Q7) | Seed data (Giang) | Seed data now has 4 sections with invented names and 27 tables (was 3 sections, 16 tables); seats per table are a team assumption |
 | F9 | The restaurant already uses an ordering app; out-of-stock is passed on by word of mouth (Q8) | FR-17, BR-07 (Lam); Report Chapter 2 | No FR change. Rewrite the current-situation text: orders are not handwritten here, but the app is not linked to reservations or billing |
 | F10 | Guests rarely change orders after cooking starts (Q9) | BR-08 (Lam) | No change — the rule still protects the kitchen |
 | F11 | Bills are rarely split at the table (Q10) | FR-23, FR-24 (Khoa) | CR-03: FR-24 (split by item) lowered to Could; FR-23 stays Must |
