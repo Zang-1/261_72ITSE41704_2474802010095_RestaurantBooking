@@ -16,11 +16,18 @@ import vn.edu.vlu.restaurant.exception.BusinessRuleException;
 
 /**
  * An advance booking of one table. Only a Confirmed reservation whose start time has not passed
- * can be modified or cancelled (FR-05). endTime() and overlaps() for BR-01 follow in Week 7.
+ * can be modified or cancelled (FR-05).
  */
 @Entity
 @Table(name = "reservation")
 public class Reservation {
+
+    /** The table turns Reserved this long before the booking (BR-05). */
+    public static final int RESERVED_BEFORE_MINUTES = 30;
+    /** Guests may check in this early (interview, F6). */
+    public static final int EARLY_CHECK_IN_MINUTES = 30;
+    /** Late guests are held this long, then the booking is a no-show (FR-06, CR-01). */
+    public static final int NO_SHOW_AFTER_MINUTES = 45;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,6 +81,45 @@ public class Reservation {
 
     public boolean hasStarted(LocalDateTime now) {
         return !now.isBefore(startTime);
+    }
+
+    public LocalDateTime endTime(ReservationSettings settings) {
+        return startTime.plusMinutes(settings.getDiningMinutes());
+    }
+
+    /** BR-01: two bookings of the same table overlap if startA < endB + turn and startB < endA + turn. */
+    public boolean overlaps(Reservation other, ReservationSettings settings) {
+        return overlap(startTime, other.startTime, settings);
+    }
+
+    public static boolean overlap(LocalDateTime startA, LocalDateTime startB, ReservationSettings s) {
+        long block = s.getDiningMinutes() + s.getTurnMinutes();
+        return startA.isBefore(startB.plusMinutes(block)) && startB.isBefore(startA.plusMinutes(block));
+    }
+
+    /** Guests arrived: allowed from 30 minutes before the start until the no-show limit (BR-05, CR-01). */
+    public void checkIn(LocalDateTime now) {
+        if (status != ReservationStatus.CONFIRMED) {
+            throw new BusinessRuleException("Only a confirmed reservation can be checked in");
+        }
+        if (now.isBefore(startTime.minusMinutes(EARLY_CHECK_IN_MINUTES))) {
+            throw new BusinessRuleException("Check-in opens " + EARLY_CHECK_IN_MINUTES + " minutes before the booking");
+        }
+        if (isNoShow(now)) {
+            throw new BusinessRuleException("The guests are more than " + NO_SHOW_AFTER_MINUTES + " minutes late; seat them as a walk-in");
+        }
+        status = ReservationStatus.CHECKED_IN;
+    }
+
+    public boolean isNoShow(LocalDateTime now) {
+        return !now.isBefore(startTime.plusMinutes(NO_SHOW_AFTER_MINUTES));
+    }
+
+    /** FR-06: guests who have not checked in 45 minutes after the start (CR-01). */
+    public void markNoShow(LocalDateTime now) {
+        if (status == ReservationStatus.CONFIRMED && isNoShow(now)) {
+            status = ReservationStatus.NO_SHOW;
+        }
     }
 
     private void requireChangeable(LocalDateTime now) {
