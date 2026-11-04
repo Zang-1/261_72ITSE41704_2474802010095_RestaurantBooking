@@ -79,7 +79,7 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 - Updated diagrams exported as PNG for the report: `docs/diagrams/giang/updated/` (04/11).
 
 **Week 10 (drafts)**
-- `docs/report/`: Chapter 1, Chapter 3 (Table & Reservation part), Chapter 4, Appendices B and C.
+- `docs/report/giang.md`: front matter, Chapter 1, Chapter 3 (Table & Reservation part), Chapter 4, Giang's rows of Appendices B and C (one file, 04/11).
 - Lam and Khoa add their sections.
 
 ## Notes for the team
