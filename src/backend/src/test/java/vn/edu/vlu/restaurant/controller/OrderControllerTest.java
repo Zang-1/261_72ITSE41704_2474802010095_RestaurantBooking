@@ -176,7 +176,7 @@ class OrderControllerTest extends ApiTestSupport {
     }
 
     @Test
-    @DisplayName("TC-ORD-11 A locked order cannot be changed (BR-08)")
+    @DisplayName("TC-ORD-11 A locked order cannot be changed (BR-09)")
     void lockedOrderRefused() throws Exception {
         long orderId = createOrder(occupiedTable());
         long lineId = addLine(orderId, orderableItem().getId(), 1);

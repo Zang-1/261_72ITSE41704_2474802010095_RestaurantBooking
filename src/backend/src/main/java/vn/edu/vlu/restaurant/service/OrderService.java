@@ -25,7 +25,10 @@ import vn.edu.vlu.restaurant.repository.DiningTableRepository;
 import vn.edu.vlu.restaurant.repository.MenuItemRepository;
 import vn.edu.vlu.restaurant.repository.UserRepository;
 
-/** Orders of the Waiter/Host (UC-08): open an order (FR-11) and edit its lines before sending (FR-12). */
+/**
+ * Orders of the Waiter/Host (UC-08): open an order (FR-11), edit its lines before sending (FR-12)
+ * and send them to the kitchen (FR-13, FR-14, FR-18).
+ */
 @Service
 @Transactional
 public class OrderService {
@@ -80,9 +83,9 @@ public class OrderService {
         return OrderResponse.from(findOrder(id));
     }
 
-    /** Adds a dish; out-of-stock or hidden items are refused (BR-07), and so is a locked order (BR-08). */
+    /** Adds a dish; out-of-stock or hidden items are refused (BR-07), and so is a locked order (BR-09). */
     public OrderResponse addLine(Long orderId, OrderLineRequest request) {
-        CustomerOrder order = findOrder(orderId);
+        CustomerOrder order = findOrderForUpdate(orderId);
         MenuItem item = itemRepository.findById(request.menuItemId())
                 .orElseThrow(() -> new InvalidInputException("menuItemId", "Menu item not found"));
         order.addLine(item, request.quantity(), cleanNote(request.note()));
@@ -91,19 +94,48 @@ public class OrderService {
     }
 
     public OrderResponse changeLine(Long orderId, Long lineId, OrderLineUpdateRequest request) {
-        CustomerOrder order = findOrder(orderId);
+        CustomerOrder order = findOrderForUpdate(orderId);
         order.changeLine(findLine(order, lineId), request.quantity(), cleanNote(request.note()));
         return OrderResponse.from(order);
     }
 
+    /** An unsent line is deleted; a sent line is cancelled, which only works before cooking starts (BR-08). */
     public OrderResponse removeLine(Long orderId, Long lineId) {
-        CustomerOrder order = findOrder(orderId);
-        order.removeLine(findLine(order, lineId));
+        CustomerOrder order = findOrderForUpdate(orderId);
+        OrderLine line = findLine(order, lineId);
+        if (line.isSent()) {
+            order.cancelLine(line, LocalDateTime.now(clock));
+        } else {
+            order.removeLine(line);
+        }
+        orderRepository.flush();  // a cook starting the dish at the same moment fails here, not after the response
+        return OrderResponse.from(order);
+    }
+
+    /**
+     * Sends dishes to the kitchen as one ticket (FR-13, FR-14). The order row is locked and the whole
+     * send is one transaction: if anything fails nothing is saved, and a second click finds nothing
+     * left to send, so no duplicate ticket is ever created (NFR-07).
+     */
+    public OrderResponse sendToKitchen(Long orderId, List<Long> lineIds) {
+        CustomerOrder order = findOrderForUpdate(orderId);
+        List<OrderLine> selection = lineIds == null || lineIds.isEmpty()
+                ? order.unsentLines()
+                : lineIds.stream().distinct()
+                        .map(id -> order.findLine(id)
+                                .orElseThrow(() -> new InvalidInputException("lineIds", "Order line not found")))
+                        .toList();
+        order.sendToKitchen(selection, LocalDateTime.now(clock));
+        orderRepository.flush();  // gives the ticket items their ids for the response
         return OrderResponse.from(order);
     }
 
     private CustomerOrder findOrder(Long id) {
         return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order not found"));
+    }
+
+    private CustomerOrder findOrderForUpdate(Long id) {
+        return orderRepository.findByIdForUpdate(id).orElseThrow(() -> new NotFoundException("Order not found"));
     }
 
     private OrderLine findLine(CustomerOrder order, Long lineId) {
