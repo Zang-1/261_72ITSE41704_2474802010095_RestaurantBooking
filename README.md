@@ -79,7 +79,7 @@ Seeding can be switched off with `app.seed.enabled=false`.
 - `docs/diagrams/` — UML diagrams and ERDs, one folder per member
 - `docs/progress/` — weekly progress notes per member
 - `docs/interview/` — restaurant interview questions and notes
-- `docs/report/` — Final Report drafts (chapters and appendices)
+- `docs/report/` — Final Report drafts, one Markdown file per member (`giang.md`, …)
 - `docs/screenshots/` — screenshots used in the report
 - `docs/design/ui-demo.html` — clickable UI design preview (open it in a browser)
 - `docs/self-check-week7.md`, `docs/security-check.md` — Week 7 rubric self-check and Week 8 security check
