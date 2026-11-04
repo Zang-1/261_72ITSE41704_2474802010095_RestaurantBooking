@@ -33,7 +33,7 @@ can add and deactivate a free table, the default timings are 180 and 15 minutes 
 
 ## Week 7–9: business rules and end-to-end (added 03/11/2026)
 
-Rows TC-RES-17 to TC-RES-29 were run on 03/11/2026: `mvn test`, 79 tests, 0 failures.
+Rows TC-RES-17 to TC-RES-29 were run on 03/11/2026 (`mvn test`, 79 tests, 0 failures). Rows TC-RES-30 and TC-RES-31 were added on 04/11/2026, after the Order & Kitchen module was merged (`mvn test`, 115 tests, 0 failures).
 Rows marked "UI" were also checked by hand on the same day, in the browser, with the H2 demo profile.
 Screenshots are in `docs/screenshots/giang/`.
 
@@ -52,6 +52,8 @@ Screenshots are in `docs/screenshots/giang/`.
 | TC-RES-27 | Two bookings at the same moment (NFR-06) | Two threads, same table and time, separate transactions | 2 × create at once | Exactly one saved; the other gets BusinessRuleException "Table N is already booked at 19:00; …" | As expected | Pass | ConcurrentBookingTest.onlyOneOfTwoSimultaneousBookingsWins |
 | TC-RES-28 | End to end: one table through a whole visit, with a real login | Logged in as `waiter` | book now + 20 min → walk-in → check-in → waiting party added → guests left → seat-next → clean → seat-next | RESERVED; walk-in 409; OCCUPIED; position 1; NEEDS_CLEANING; seat-next 409 "must be cleaned"; AVAILABLE; Pham Thu Ha seated, list empty | As expected | Pass | ReservationFlowEndToEndTest.wholeVisitOnOneTable |
 | TC-RES-29 | Logout ends access (NFR-10) | Logged in, then logged out | POST /tables/1/clean with the old session | 401 | As expected | Pass | ReservationFlowEndToEndTest.logoutEndsAccess |
+| TC-RES-30 | Availability search speed (NFR-01) | 50 active tables; 500 Confirmed reservations over the next 7 days (H2 in-memory database) | 1 warm-up search, then 5 timed searches: day 4, 19:00, party 2 | Every search under 2,000 ms | Slowest of 5: 9–16 ms over two runs (04/11/2026) | Pass | ReservationPerformanceTest.searchIsFastEnough |
+| TC-RES-31 | End to end across modules: reservation → order → kitchen → table released | Logged in as `waiter` and as `kitchen` | book now + 20 min → check-in → open order, add 2 × main dish, send → kitchen start, ready → guests left → order closed → guests left → clean | Order created on the Occupied table; waiter sees READY; 1st "guests left" 409 "Table N still has an open order; close its bill first"; after the order is closed NEEDS_CLEANING, then AVAILABLE | As expected. The order is closed directly in the test until the Billing module exists | Pass | ReservationFlowEndToEndTest.visitAcrossReservationOrderAndKitchen |
 
 Extra checks found by hand in the UI on 03/11/2026 (no defect):
 - **Early check-in:** pressing "Check in" 4 hours before the booking shows "Check-in opens 30 minutes before the booking".
