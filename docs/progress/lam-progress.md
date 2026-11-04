@@ -46,4 +46,10 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 
 ## Still open
 
-- FR-19 (move an order to another table) and FR-20 (orders of a table in the shift) are Could and not built.
+- FR-20 (orders of a table in the shift) is Could and not built; it needs Khoa's shifts.
+
+## FR-19 (5/11/2026)
+
+- Move an open order to another free table: `POST /api/orders/{id}/move`, using Giang's `seatParty`, so BR-01 to BR-03 and BR-05 apply. Old table goes to Needs cleaning.
+- Order screen: Move to another table form. Tests: `OrderMoveControllerTest` (TC-ORD-14 to 18).
+- Results: `mvn test` 124 tests, 0 failures (70 for Order & Kitchen).

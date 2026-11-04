@@ -5,7 +5,7 @@ Menu management (Week 5–6), order taking and kitchen tickets (Week 7–8). Col
 
 Every row is also an automated test (column **Automated test**) in `src/backend/src/test`, run with
 `mvn test` on an in-memory H2 database seeded with the standard accounts and a sample menu.
-**Actual result** and **Pass/Fail** come from the `mvn test` run on the author's machine on 4/11/2026 (113 tests, 0 failures).
+**Actual result** and **Pass/Fail** come from the `mvn test` run on the author's machine on 5/11/2026 (124 tests, 0 failures).
 
 | ID | Purpose | Precondition | Input | Expected result | Actual result | Pass/Fail | Automated test |
 |---|---|---|---|---|---|---|---|
@@ -19,7 +19,7 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 | TC-MENU-08 | Order line copies the price and rejects an out-of-stock item (BR-07) | Unit test, no database | add a line, change the menu price, then add an out-of-stock item | Line keeps the old price; out-of-stock item refused | As expected | Pass | CustomerOrderTest.addLineCopiesThePriceFromTheMenu, outOfStockItemCannotBeAdded |
 | TC-MENU-09 | Locked order cannot be changed (BR-09) | Unit test, order locked | add a line, remove a line | Both refused; lines unchanged | As expected | Pass | CustomerOrderTest.lockedOrderCannotBeChanged |
 
-## Orders (UC-08, FR-11, FR-12)
+## Orders (UC-08, FR-11, FR-12, FR-19)
 
 | ID | Purpose | Precondition | Input | Expected result | Actual result | Pass/Fail | Automated test |
 |---|---|---|---|---|---|---|---|
@@ -36,6 +36,11 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 | TC-ORD-11 | Locked order cannot change (BR-09) | Order is LOCKED | add a line, remove a line | 409 for both | As expected | Pass | OrderControllerTest.lockedOrderRefused |
 | TC-ORD-12 | Unknown order or foreign line | Two orders exist | GET order 999999; DELETE a line of the other order | 404 for both | As expected | Pass | OrderControllerTest.unknownOrderOrLine |
 | TC-ORD-13 | Order screen finds the table's order | Table has an open order | GET /api/orders?tableId= | 200; one order with that id | As expected | Pass | OrderControllerTest.currentOrderOfTable |
+| TC-ORD-14 | Move an order to a free table (FR-19) | Order sent to the kitchen; another table Available | POST /api/orders/{id}/move, new table, party size 2 | 200; order on the new table, new table Occupied, old table Needs cleaning; the kitchen ticket shows the new table | As expected | Pass | OrderMoveControllerTest.moveOrder |
+| TC-ORD-15 | New table must be free (BR-05) | New table is Occupied | move | 409 "Table N is not available"; old table still Occupied | As expected | Pass | OrderMoveControllerTest.targetMustBeAvailable |
+| TC-ORD-16 | Party must fit the new table (BR-02) | New table has N seats | party size N + 1 | 400; message next to the party size; new table still Available | As expected | Pass | OrderMoveControllerTest.partyMustFit |
+| TC-ORD-17 | Locked order cannot move (BR-09) | Order is LOCKED | move | 409; new table still Available | As expected | Pass | OrderMoveControllerTest.lockedOrderCannotMove |
+| TC-ORD-18 | Invalid move input (NFR-11) | Open order | the same table; then no party size | 400 "The order is already at table N"; then 400 "Party size is required" | As expected | Pass | OrderMoveControllerTest.invalidInput |
 
 ## Send to kitchen and kitchen tickets (UC-08 steps 4-7, UC-09, FR-13 to FR-15, FR-18)
 
