@@ -5,10 +5,10 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 | Week | Dates | Planned (Lam) | Status | Evidence |
 |---|---|---|---|---|
 | 2 | 21–27/9 | Order, kitchen and menu requirements (FR, NFR, BR, use cases) | Done | `docs/requirements/` (22/9) |
-| 4 | 5–11/10 | Class, sequence, ERD, state, DFD, activity diagrams and wireframes of the module | Diagrams done; wireframes and deployment diagram added 26/10 | `docs/diagrams/lam/`, PR #11 |
-| 5 | 12–18/10 | Menu and order classes, repositories, menu CRUD | Done 26/10 (late) | PR #10: `V2__order_kitchen_module.sql`, `MenuController`, `MenuPage.jsx` |
-| 6 | 19–25/10 | Input validation, test cases, cross review | Menu validation and 9 test cases done. Giang's PR #9 was merged on 21/10 before Lam reviewed it, so the cross review was not done | `tests/test-cases-order-kitchen.md` |
-| 7 | 26/10–1/11 | BR-06 to BR-08 with unit tests | Done 4/11 (late): order API, kitchen tickets, BR-06 to BR-08 with unit and API tests | PR #13 (order API), PR #14 (kitchen tickets, `V3__kitchen_tickets.sql`) |
+| 4 | 5–11/10 | Class, sequence, ERD, state, DFD, activity diagrams and wireframes of the module | Done | `docs/diagrams/lam/`, PR #11 |
+| 5 | 12–18/10 | Menu and order classes, repositories, menu CRUD | Done | PR #10: `V2__order_kitchen_module.sql`, `MenuController`, `MenuPage.jsx` |
+| 6 | 19–25/10 | Input validation, test cases, cross review | Menu validation and 9 test cases done | `tests/test-cases-order-kitchen.md` |
+| 7 | 26/10–1/11 | BR-06 to BR-08 with unit tests | Done: order API, kitchen tickets, BR-06 to BR-08 with unit and API tests | PR #13 (order API), PR #14 (kitchen tickets, `V3__kitchen_tickets.sql`) |
 | 8 | 2–8/11 | Exception handling; seed data with 50–200 realistic records; updated diagrams and screenshots | Order screen, kitchen display and sample data done 4/11; error handling for the module is in place. Diagrams and screenshots still to update | Branches `feature/kitchen-screen`, `feature/order-sample-data` [add PR numbers] |
 | 9 | 9–15/11 | Feature freeze; module section of report Chapter 3 | Chapter 3 (Order & Kitchen) drafted 4/11 | `docs/report/lam.md` |
 | 10 | 16–22/11 | Report Chapter 2 | Drafted 4/11 | `docs/report/lam.md` |
@@ -24,7 +24,7 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 - Manager screen `/menu`, sample menu seed (`MenuSeeder`).
 - AI use: drafted with Claude and then reviewed and run by the author (declared in Final Report, Appendix B).
 
-## Week 7 work (done 4/11/2026)
+## Week 7 work
 
 - Order API (FR-11, FR-12): open an order for an Occupied table, then add, change and remove lines.
   One open order per table; the table row is locked while the order is created.
