@@ -2,7 +2,8 @@
 
 The PNG files in this folder were drawn in Week 4, before the restaurant interview and before the Week 7 code.
 The diagrams below replace them where the two differ. They match the code on branch `feature/giang-week7-10`.
-GitHub renders Mermaid. For the report, export each diagram as an image (for example with mermaid.live).
+GitHub renders Mermaid. PNG exports for the report are in `updated/` (`w8-*.png`, made with mermaid-cli at 2× scale).
+Export them again after any change to a diagram below.
 
 What changed since the Week 4 PNGs:
 - Dining duration is 180 minutes, not 90 (CR-02). The no-show limit is 45 minutes (CR-01).
@@ -228,5 +229,5 @@ sequenceDiagram
     S->>DB: A: no overlap → INSERT reservation, COMMIT
     DB-->>S: B: lock granted
     S->>DB: B: overlap found (A's booking)
-    S-->>B: 409 "Table 5 is already booked at 19:00; choose another time or table"
+    S-->>B: 409 "Table 5 is already booked at 19:00, choose another time or table"
 ```
