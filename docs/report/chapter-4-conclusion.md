@@ -12,7 +12,7 @@ Draft by Kieu Bao Giang, 03/11/2026. **[Brackets]** = Lam or Khoa fill in, or up
 | Table & Reservation, FR-02 to FR-10, UC-01 to UC-06, BR-01 to BR-05 | All FRs, all five rules, each with automated tests | UC-06 "highlight a fitting party" is replaced by a "Seat next waiting" button (see 3.3.3) |
 | Order & Kitchen, FR-11 to FR-20, BR-06 to BR-08 | [Lam] | [Lam] |
 | Billing & Reporting, FR-21 to FR-29, BR-09 to BR-13 | [Khoa] | [Khoa] |
-| 30 documented test cases | 29 for Table & Reservation, [+ Order + Billing] | — |
+| 30 documented test cases | 31 for Table & Reservation (TC-RES-01 to TC-RES-31), [+ Order & Kitchen + Billing] | — |
 | Release tags v0.1, v0.2, v1.0 | [dates] | — |
 
 **Achievements and outcomes**

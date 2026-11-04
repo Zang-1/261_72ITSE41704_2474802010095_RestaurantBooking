@@ -95,7 +95,7 @@ Seeding can be switched off with `app.seed.enabled=false`.
 - Release tags: `v0.1` (Week 5), `v0.2` (Week 7), `v1.0` (Week 9).
 
 ## Current Status
-Week 8 (03/11/2026)
+Week 8 (04/11/2026)
 
 **Done**
 - Project Proposal (Week 3) and design diagrams for all three modules (Week 4).
@@ -107,11 +107,11 @@ Week 8 (03/11/2026)
   - clean before reuse;
   - waiting-list order;
   - table lifecycle, check-in, and no-show after 45 minutes.
-- 29 documented test cases for Table & Reservation (`tests/test-cases-table-reservation.md`).
-- Lam: menu management and order entities (V2 migration).
-- Automated tests: 79, all passing (`mvn test`).
+- 31 documented test cases for Table & Reservation (`tests/test-cases-table-reservation.md`).
+- Lam: menu management, order API, send to kitchen and kitchen display API (V2, V3 migrations).
+- Automated tests: 115, all passing (`mvn test`).
 
 **Next**
-- Order & Kitchen and Billing business rules.
-- Tag `v0.2`, then `v1.0` at feature freeze (Week 9).
+- Kitchen screen (Lam); Billing & Reporting module (Khoa).
+- Tag `v1.0` at feature freeze (Week 9); `v0.1` and `v0.2` are done.
 - Final Report drafts in `docs/report/`.
