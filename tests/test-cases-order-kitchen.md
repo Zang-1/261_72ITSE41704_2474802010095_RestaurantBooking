@@ -1,11 +1,11 @@
 # Test cases — Order & Kitchen module (Tang Thoai Lam)
 
-Menu management (Week 5–6) and order taking (Week 7). Columns follow Course Guidelines §6.3, same as
-`test-cases-table-reservation.md`. Kitchen ticket test cases are added with the kitchen display.
+Menu management (Week 5–6), order taking and kitchen tickets (Week 7–8). Columns follow Course Guidelines §6.3, same as
+`test-cases-table-reservation.md`.
 
 Every row is also an automated test (column **Automated test**) in `src/backend/src/test`, run with
 `mvn test` on an in-memory H2 database seeded with the standard accounts and a sample menu.
-**Actual result** and **Pass/Fail** come from the `mvn test` run on the author's machine on 4/11/2026 (92 tests, 0 failures).
+**Actual result** and **Pass/Fail** come from the `mvn test` run on the author's machine on 4/11/2026 (113 tests, 0 failures).
 
 | ID | Purpose | Precondition | Input | Expected result | Actual result | Pass/Fail | Automated test |
 |---|---|---|---|---|---|---|---|
@@ -17,7 +17,7 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 | TC-MENU-06 | Sold-out item leaves the order screens (BR-07) | Logged in as Kitchen Staff; item in stock | POST /api/menu/items/{id}/out-of-stock, then the waiter lists items with availableOnly=true | Item no longer in the waiter's list; still in the Manager's list | As expected | Pass | MenuControllerTest.outOfStockItemIsHiddenFromOrderScreens |
 | TC-MENU-07 | Restocked item returns to the order screens (BR-07) | Item is out of stock | POST /api/menu/items/{id}/restock | Item is in the waiter's list again | As expected | Pass | MenuControllerTest.restockedItemReturns |
 | TC-MENU-08 | Order line copies the price and rejects an out-of-stock item (BR-07) | Unit test, no database | add a line, change the menu price, then add an out-of-stock item | Line keeps the old price; out-of-stock item refused | As expected | Pass | CustomerOrderTest.addLineCopiesThePriceFromTheMenu, outOfStockItemCannotBeAdded |
-| TC-MENU-09 | Locked order cannot be changed (BR-08) | Unit test, order locked | add a line, remove a line | Both refused; lines unchanged | As expected | Pass | CustomerOrderTest.lockedOrderCannotBeChanged |
+| TC-MENU-09 | Locked order cannot be changed (BR-09) | Unit test, order locked | add a line, remove a line | Both refused; lines unchanged | As expected | Pass | CustomerOrderTest.lockedOrderCannotBeChanged |
 
 ## Orders (UC-08, FR-11, FR-12)
 
@@ -33,6 +33,24 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 | TC-ORD-08 | Out-of-stock dish refused (BR-07) | Item marked out of stock | add the item | 409; "\"<name>\" is not available right now" | As expected | Pass | OrderControllerTest.outOfStockItemRefused |
 | TC-ORD-09 | Change quantity and note (FR-12) | Order has one line, quantity 1 | PUT quantity 3, note "less spicy" | 200; line updated, total = price × 3 | As expected | Pass | OrderControllerTest.changeLine |
 | TC-ORD-10 | Remove a line (FR-12) | Order has one line | DELETE the line | 200; no lines, total 0 | As expected | Pass | OrderControllerTest.removeLine |
-| TC-ORD-11 | Locked order cannot change (BR-08) | Order is LOCKED | add a line, remove a line | 409 for both | As expected | Pass | OrderControllerTest.lockedOrderRefused |
+| TC-ORD-11 | Locked order cannot change (BR-09) | Order is LOCKED | add a line, remove a line | 409 for both | As expected | Pass | OrderControllerTest.lockedOrderRefused |
 | TC-ORD-12 | Unknown order or foreign line | Two orders exist | GET order 999999; DELETE a line of the other order | 404 for both | As expected | Pass | OrderControllerTest.unknownOrderOrLine |
 | TC-ORD-13 | Order screen finds the table's order | Table has an open order | GET /api/orders?tableId= | 200; one order with that id | As expected | Pass | OrderControllerTest.currentOrderOfTable |
+
+## Send to kitchen and kitchen tickets (UC-08 steps 4-7, UC-09, FR-13 to FR-15, FR-18)
+
+| ID | Purpose | Precondition | Input | Expected result | Actual result | Pass/Fail | Automated test |
+|---|---|---|---|---|---|---|---|
+| TC-KIT-01 | Send creates one ticket in course order (FR-13, FR-14) | Open order with a Main and a Starter | POST /api/orders/{id}/send, then the kitchen opens GET /api/kitchen/tickets | Both lines New; one ticket for the table, Starter listed before Main | As expected | Pass | KitchenControllerTest.sendCreatesTicket |
+| TC-KIT-02 | No duplicate ticket (NFR-07) | Order already sent | POST /send again | 409 "There is nothing new to send"; still one ticket | As expected | Pass | KitchenControllerTest.sendTwice |
+| TC-KIT-03 | Course order (BR-06) | Order has an unsent Starter and Main | send only the Main (lineIds) | 409 "Send the Starter dishes before the Main dishes (BR-06)" | As expected | Pass | KitchenControllerTest.courseOrder |
+| TC-KIT-04 | Send is atomic (BR-07, NFR-07) | One of two lines ran out of stock | POST /send | 409; no line sent, no ticket created | As expected | Pass | KitchenControllerTest.sendIsAtomic |
+| TC-KIT-05 | Item lifecycle, waiter sees status (FR-15) | Item New | start, then ready | In Progress, then Ready; waiter's order shows READY; ticket leaves the kitchen display | As expected | Pass | KitchenControllerTest.itemLifecycle |
+| TC-KIT-06 | No skipping In Progress | Item New | POST /ready | 409 | As expected | Pass | KitchenControllerTest.cannotSkipInProgress |
+| TC-KIT-07 | Dish sent back needs a reason (UC-09 3a) | Item Ready | send-back with reason " ", then "Too salty" | 400 "Reason is required"; then 200, In Progress | As expected | Pass | KitchenControllerTest.sendBack |
+| TC-KIT-08 | Locked once cooking starts (FR-18, BR-08) | Item In Progress | waiter DELETE and PUT the line | 409 for both | As expected | Pass | KitchenControllerTest.lockedAfterCookingStarts |
+| TC-KIT-09 | Cancel before cooking | Item sent, still New | waiter DELETE the line | 200; line Cancelled, total 0 | As expected | Pass | KitchenControllerTest.cancelBeforeCooking |
+| TC-KIT-10 | Roles (NFR-10) | — | kitchen sends an order; waiter starts an item; waiter opens the kitchen display | 403 for all three | As expected | Pass | KitchenControllerTest.roles |
+| TC-KIT-11 | BR-06 rule, unit test | Unit test, no database | send a Main while a Starter is unsent; send the Starter first, then the Main | First refused, nothing sent; second gives two tickets | As expected | Pass | KitchenTicketTest.laterCourseCannotBeSentWhileAnEarlierCourseIsUnsent, earlierCourseCanBeSentFirst |
+| TC-KIT-12 | BR-08 rule, unit test | Unit test, item In Progress | cancel the line; add a new dish and send | Cancel refused; new dish goes on a second ticket | As expected | Pass | KitchenTicketTest.itemInProgressCannotBeCancelled, newDishesAfterCookingStartsGoOnANewTicket |
+| TC-KIT-13 | Item state diagram, unit test | Unit test | New → Ready; then New → In Progress → Ready → In Progress without and with a reason | Skips and a send-back without a reason are refused; history has 4 steps with the reason | As expected | Pass | KitchenTicketTest.itemLifecycleFollowsTheStateDiagram |
