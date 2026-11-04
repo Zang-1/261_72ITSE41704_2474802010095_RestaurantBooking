@@ -9,7 +9,7 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 | 5 | 12–18/10 | Menu and order classes, repositories, menu CRUD | Done | PR #10: `V2__order_kitchen_module.sql`, `MenuController`, `MenuPage.jsx` |
 | 6 | 19–25/10 | Input validation, test cases, cross review | Menu validation and 9 test cases done | `tests/test-cases-order-kitchen.md` |
 | 7 | 26/10–1/11 | BR-06 to BR-08 with unit tests | Done: order API, kitchen tickets, BR-06 to BR-08 with unit and API tests | PR #13 (order API), PR #14 (kitchen tickets, `V3__kitchen_tickets.sql`) |
-| 8 | 2–8/11 | Exception handling; seed data with 50–200 realistic records; updated diagrams and screenshots | Order screen, kitchen display and sample data done 4/11; error handling for the module is in place. Diagrams and screenshots still to update | Branches `feature/kitchen-screen`, `feature/order-sample-data` [add PR numbers] |
+| 8 | 2–8/11 | Exception handling; seed data with 50–200 realistic records; updated diagrams and screenshots | Order screen, kitchen display, sample data, updated diagrams and screenshots done; error handling for the module is in place | Branches `feature/kitchen-screen`, `feature/order-sample-data` [add PR numbers]; `docs/diagrams/lam/updated/`, `docs/screenshots/lam/` |
 | 9 | 9–15/11 | Feature freeze; module section of report Chapter 3 | Chapter 3 (Order & Kitchen) drafted 4/11 | `docs/report/lam.md` |
 | 10 | 16–22/11 | Report Chapter 2 | Drafted 4/11 | `docs/report/lam.md` |
 
@@ -46,5 +46,4 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 
 ## Still open
 
-- Update the module's class and ERD diagrams to match the code (kitchen methods, `version` column) and take screenshots.
 - FR-19 (move an order to another table) and FR-20 (orders of a table in the shift) are Could and not built.

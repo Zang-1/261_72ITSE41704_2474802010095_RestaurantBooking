@@ -241,7 +241,7 @@ The restaurant's ordering app does not know which tables are seated, and out-of-
 - DFD level 1, order and kitchen process: `docs/diagrams/lam/10-dfd-1b-order-kitchen.png`.
 
 #### 3.2.3 Database design
-ERDs: `04-erd-2-order-menu.png` (Flyway `V2__order_kitchen_module.sql`) and `04-erd-3-kitchen-tickets.png` (`V3__kitchen_tickets.sql`).
+ERD: `docs/diagrams/lam/updated/w8-erd-order-kitchen.png` (README §3), matching Flyway `V2__order_kitchen_module.sql` and `V3__kitchen_tickets.sql`.
 
 | Table | Purpose | Key constraints |
 |---|---|---|
@@ -254,9 +254,10 @@ ERDs: `04-erd-2-order-menu.png` (Flyway `V2__order_kitchen_module.sql`) and `04-
 | `item_status_change` | History of each dish | `status`, `changed_at`, `reason` (for a dish sent back) |
 
 #### 3.2.4 Class design and state machines
-- Class diagrams: `03-class-2-order-menu.png`, `03-class-3-kitchen-tickets.png`. [Update both to the code: `CustomerOrder.sendToKitchen`, `cancelLine`, `hasKitchenWorkPending`; `KitchenTicketItem.changeStatus(target, reason, at)`; the `version` column.]
-- State machines: ticket item `08-state-3-ticket-item.png`; order `08-state-4-order.png`. Both match the code.
-- Sequences: `06-sequence-order-1-take-order.png`, `06-sequence-order-2-send-to-kitchen.png`, `06-sequence-order-3-kitchen-display.png`.
+Images for the report are in `docs/diagrams/lam/updated/`; the Mermaid sources are in `docs/diagrams/lam/README.md`.
+- Class diagrams: `w8-class-order-menu.png` (README §1) and `w8-class-kitchen-tickets.png` (README §2).
+- State machines: ticket item `08-state-3-ticket-item.png`; order `08-state-4-order.png`.
+- Sequences: send to kitchen, `w8-sequence-send-to-kitchen.png` (README §4); kitchen display, `w8-sequence-kitchen-display.png` (README §5). Taking an order: `06-sequence-order-1-take-order.png`.
 
 Design decisions:
 - **BR-08 locks one dish.** The lock sits on the ticket item of each order line, so new dishes can still be added. The order-level `LOCKED` status is kept for Billing: it means "bill generated" (BR-09).
@@ -306,11 +307,10 @@ Going back from Ready needs a reason, which is saved in `item_status_change`.
 
 #### 3.2.5 Interface design
 - Wireframes: `13-wireframe-1-order-screen.png`, `13-wireframe-2-kitchen-display.png`.
-- Screens: [add screenshots to `docs/screenshots/lam/`]
-  - Order screen (Waiter/Host): the menu by category on one side, the order with each dish's kitchen status on the other. Figure 3.x.
-  - Kitchen display (Kitchen Staff): open tickets, oldest first, with the table number and the waiting time; one button per dish for the next step. Figure 3.x.
-  - Sold-out panel on the kitchen display (UC-10). Figure 3.x.
-  - Menu (Manager). Figure 3.x.
+- Screens, in `docs/screenshots/lam/`:
+  - Order screen (Waiter/Host): the menu by category on one side, the order with each dish's kitchen status on the other. Figure 3.x, `01-order-screen.jpg`.
+  - Kitchen display (Kitchen Staff): open tickets, oldest first, with the table number and the waiting time; one button per dish for the next step. The sold-out panel (UC-10) sits under the tickets. Figure 3.x, `02-kitchen-display.jpg`.
+  - Menu (Manager). Figure 3.x, `03-menu-manager.jpg`.
 
 ### 3.3 System Development and Implementation (module part)
 
@@ -357,7 +357,7 @@ Same as Giang's table. Lam's module adds no library.
 
 #### 3.3.4 Other deliverables
 - Flyway migrations `V2` and `V3`.
-- Wireframes, deployment diagram and the module's UML diagrams in `docs/diagrams/lam/`.
+- Wireframes, deployment diagram and the module's UML diagrams in `docs/diagrams/lam/`, with the diagrams updated to the code in `updated/`.
 - Test cases `tests/test-cases-order-kitchen.md`.
 
 ### 3.4 Testing and Evaluation (module part)
