@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import vn.edu.vlu.restaurant.exception.BusinessRuleException;
 
-/** Unit tests of the order rules (BR-07, BR-08), without Spring or a database. */
+/** Unit tests of the order rules (BR-07, BR-09), without Spring or a database. */
 class CustomerOrderTest {
 
     private final MenuCategory mains = new MenuCategory("Main dishes");
