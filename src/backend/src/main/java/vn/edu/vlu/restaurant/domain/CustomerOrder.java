@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import vn.edu.vlu.restaurant.exception.BusinessRuleException;
 
 /**
@@ -69,11 +70,24 @@ public class CustomerOrder {
         return line;
     }
 
+    /** Changes the quantity and note of a line (FR-12). Refused when the order is locked (BR-08). */
+    public void changeLine(OrderLine line, int quantity, String note) {
+        requireOpen();
+        if (!lines.contains(line)) {
+            throw new BusinessRuleException("The line does not belong to this order");
+        }
+        line.change(quantity, note);
+    }
+
     public void removeLine(OrderLine line) {
         requireOpen();
         if (!lines.remove(line)) {
             throw new BusinessRuleException("The line does not belong to this order");
         }
+    }
+
+    public Optional<OrderLine> findLine(Long lineId) {
+        return lines.stream().filter(line -> lineId.equals(line.getId())).findFirst();
     }
 
     /** The kitchen started a dish: the order can no longer be edited (BR-08). */

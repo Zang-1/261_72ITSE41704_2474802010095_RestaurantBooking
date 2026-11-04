@@ -48,16 +48,21 @@ public class OrderLine {
     }
 
     OrderLine(CustomerOrder order, MenuItem menuItem, int quantity, String note) {
+        this.order = order;
+        this.menuItem = menuItem;
+        this.unitPrice = menuItem.getPrice();
+        change(quantity, note);
+    }
+
+    /** Used through {@link CustomerOrder#changeLine}, which checks that the order is still open. */
+    void change(int quantity, String note) {
         if (quantity < MIN_QUANTITY || quantity > MAX_QUANTITY) {
             throw new IllegalArgumentException("Quantity must be between 1 and 50");
         }
         if (note != null && note.length() > MAX_NOTE_LENGTH) {
             throw new IllegalArgumentException("Note must be at most 200 characters");
         }
-        this.order = order;
-        this.menuItem = menuItem;
         this.quantity = quantity;
-        this.unitPrice = menuItem.getPrice();
         this.note = note;
     }
 
