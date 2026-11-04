@@ -63,16 +63,15 @@ The project uses three tools against them:
 - **Spring Security Test** logs in as a given role for each request.
 
 #### 2.1.7 Libraries and licences
-[Check each licence on the project's website before submission.]
 
 | Library | Version | Licence |
 |---|---|---|
 | Spring Boot (Web, Data JPA, Security, Validation) | 3.5.16 | Apache 2.0 |
-| Hibernate ORM (through Spring Data JPA) | [version from `mvn dependency:tree`] | LGPL 2.1 |
-| Flyway | [version] | Apache 2.0 |
-| MySQL Connector/J | [version] | GPL 2.0 with the Universal FOSS Exception |
-| H2 Database | [version] | MPL 2.0 or EPL 1.0 |
-| JUnit 5, Mockito (through spring-boot-starter-test) | [version] | EPL 2.0; MIT |
+| Hibernate ORM (through Spring Data JPA) | 6.6.53 | LGPL 2.1 |
+| Flyway | 11.7.2 | Apache 2.0 |
+| MySQL Connector/J | 9.7.0 | GPL 2.0 with the Universal FOSS Exception |
+| H2 Database | 2.3.232 | MPL 2.0 or EPL 1.0 |
+| JUnit 5, Mockito (through spring-boot-starter-test) | 5.12.2; 5.17.0 | EPL 2.0; MIT |
 | React | 18.3.1 | MIT |
 | React Router | 6.30.6 | MIT |
 | Vite | 6.4.5 | MIT |
@@ -370,8 +369,8 @@ Same as Giang's table. Lam's module adds no library.
   - A test that the sample data follows the rules: `OrderSeederTest`.
   - The screens were walked through in the browser with the H2 profile: open an order, add dishes, change a quantity and a note, send, then Start and Ready on the kitchen display.
 - **Test cases.** TC-MENU-01 to 09, TC-ORD-01 to 13 and TC-KIT-01 to 13 (35 cases) in `tests/test-cases-order-kitchen.md`, Appendix [x].
-- **Results** on 04/11/2026:
-  - `mvn test`: 119 automated tests, 0 failures. 65 of them are for Order & Kitchen. [Update when the open pull requests and Billing are merged.]
+- **Results** on 05/11/2026:
+  - `mvn test`: 119 automated tests, 0 failures. 65 of them are for Order & Kitchen. Run on `main` with all Order & Kitchen pull requests merged (#13, #14, #17, #19). [Update when Billing is merged.]
   - All 35 documented cases pass.
 
 #### 3.4.2 System evaluation
