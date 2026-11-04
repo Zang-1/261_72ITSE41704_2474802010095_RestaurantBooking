@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { FormError } from '../components/FormField.jsx';
 import { STATUS_LABELS, groupBySection } from '../format.js';
@@ -63,8 +64,11 @@ export default function FloorPage() {
                   </>
                 )}
                 {table.status === 'OCCUPIED' && (
-                  <button type="button" onClick={() => act(`/tables/${table.id}/needs-cleaning`, undefined,
-                    () => `Table ${table.number} needs cleaning.`)}>Guests left</button>
+                  <>
+                    <Link className="button primary" to={`/order/${table.id}`}>Order</Link>
+                    <button type="button" onClick={() => act(`/tables/${table.id}/needs-cleaning`, undefined,
+                      () => `Table ${table.number} needs cleaning.`)}>Guests left</button>
+                  </>
                 )}
                 {table.status === 'NEEDS_CLEANING' && (
                   <button type="button" className="primary" onClick={() => act(`/tables/${table.id}/clean`, undefined,

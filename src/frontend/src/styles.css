@@ -99,3 +99,60 @@ td.actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
 .login-card { width: 100%; max-width: 360px; }
 .login-card h1 { margin-bottom: 0.25rem; }
 .login-card button { width: 100%; margin-top: 0.5rem; }
+
+a.button {
+  display: inline-block; padding: 0.5rem 0.9rem; border: 1px solid var(--border); border-radius: 6px;
+  background: #fff; color: var(--text); text-decoration: none; text-align: center;
+}
+a.button.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+
+/* Kitchen ticket status (docs/diagrams/lam/08-state-3-ticket-item.png) */
+.badge.item-NEW { background: var(--primary); }
+.badge.item-IN_PROGRESS { background: var(--occupied); }
+.badge.item-READY { background: var(--available); }
+.badge.item-CANCELLED { background: var(--cleaning); }
+
+/* Kitchen display: tickets in sending order, read from across the kitchen */
+.ticket-rail { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; align-items: start; }
+.ticket { background: var(--card); border: 1px solid var(--border); border-top: 6px solid var(--text); border-radius: 8px; }
+.ticket.late { border-top-color: var(--danger); }
+.ticket-head { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; padding: 0.75rem 1rem 0.5rem; }
+.ticket-table { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ticket-time { color: var(--muted); font-size: 0.85rem; }
+.ticket.late .ticket-time { color: var(--danger); font-weight: 600; }
+.ticket-course { border-top: 1px solid var(--border); padding: 0.4rem 1rem 0.6rem; }
+.ticket-course h3 { margin: 0.2rem 0 0.4rem; font-size: 0.85rem; color: var(--muted); }
+.ticket-course ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.ticket-item { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; padding-left: 0.6rem; border-left: 4px solid var(--primary); }
+.ticket-item.item-IN_PROGRESS { border-left-color: var(--occupied); }
+.ticket-item.item-READY { border-left-color: var(--available); color: var(--muted); }
+.ticket-item.item-CANCELLED { border-left-color: var(--cleaning); color: var(--muted); text-decoration: line-through; }
+.ticket-dish { display: flex; flex-direction: column; font-size: 1.05rem; }
+.ticket-note { font-size: 0.9rem; color: var(--occupied); }
+.ticket-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem; }
+.ticket-actions button.primary { min-width: 5.5rem; padding: 0.6rem 1rem; }
+.item-status { font-size: 0.8rem; color: var(--muted); }
+
+.sold-out { margin-top: 1.5rem; }
+.sold-out summary { cursor: pointer; font-weight: 600; }
+.sold-out-list { list-style: none; padding: 0; margin: 0.75rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.5rem; }
+.sold-out-list li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.sold-out-list li.is-out span { color: var(--danger); text-decoration: line-through; }
+
+/* Order screen: menu on the left, the table's order on the right */
+.order-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1.25rem; align-items: start; }
+@media (max-width: 800px) { .order-layout { grid-template-columns: 1fr; } }
+.order-total { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0.5rem; }
+.menu-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; text-align: left; }
+.menu-pick:hover { border-color: var(--primary); }
+.menu-pick .muted { font-size: 0.8rem; }
+.order-lines { list-style: none; margin: 0; padding: 0; }
+.order-line { display: flex; flex-direction: column; gap: 0.4rem; padding: 0.6rem 0; border-bottom: 1px solid var(--border); }
+.order-line.is-cancelled .order-line-main { text-decoration: line-through; color: var(--muted); }
+.order-line-main { display: flex; justify-content: space-between; gap: 0.5rem; }
+.order-line-edit, .order-line-sent { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+.order-line-edit input { padding: 0.4rem 0.5rem; border: 1px solid var(--border); border-radius: 6px; font: inherit; }
+.order-line-edit input[type="number"] { width: 4.5rem; }
+.order-line-edit input[type="text"] { flex: 1; min-width: 140px; }

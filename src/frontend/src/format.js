@@ -46,6 +46,18 @@ export const COURSE_LABELS = {
   DESSERT: 'Dessert',
 };
 
+export const ITEM_STATUS_LABELS = {
+  NEW: 'New',
+  IN_PROGRESS: 'In Progress',
+  READY: 'Ready',
+  CANCELLED: 'Cancelled',
+};
+
+/** Whole minutes from a server time ("2026-11-04T19:00:00", restaurant time) to now. */
+export function minutesSince(dateTime, now = new Date()) {
+  return Math.max(0, Math.floor((now - new Date(dateTime)) / 60000));
+}
+
 /** 75000 -> "75.000 ₫" */
 export function formatPrice(amount) {
   return `${new Intl.NumberFormat('vi-VN').format(amount)} ₫`;
