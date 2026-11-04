@@ -12,7 +12,7 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 | 6 | 19–25/10 | Input validation; five test cases for own module; cross review (Lam reviews Giang) | Validation and 16 test cases done (21/10). Review: waiting for Lam on the PR | `tests/test-cases-table-reservation.md` |
 | 7 | 26/10–1/11 | BR-01 to BR-05 with unit tests, concurrent-booking test (NFR-06); Week 7 self-check | Done late, on 03/11 | Branch `feature/giang-week7-10`; `docs/self-check-week7.md`; TC-RES-17 to TC-RES-27 |
 | 8 | 2–8/11 | Exception handling, security check, updated diagrams and screenshots | Done (03/11) | `docs/security-check.md`; `docs/diagrams/giang/README.md`; `docs/screenshots/giang/` |
-| 9 | 9–15/11 | Feature freeze; end-to-end test of own module; test cases; tag v1.0 | Own part done early (03/11). Tag v1.0 after Lam and Khoa merge | `ReservationFlowEndToEndTest` (TC-RES-28, TC-RES-29) |
+| 9 | 9–15/11 | Feature freeze; end-to-end test of own module; test cases; tag v1.0 | Own part done early (03/11). Tag v1.0 after Lam and Khoa merge | `ReservationFlowEndToEndTest` (TC-RES-28, TC-RES-29, TC-RES-31 across modules), `ReservationPerformanceTest` (TC-RES-30, NFR-01) |
 | 10 | 16–22/11 | Final Report: Chapter 1, Chapter 3 (own module), Chapter 4, appendices | Drafts written (03/11); waiting for Lam and Khoa sections | `docs/report/` |
 
 ## Week 5–6 work (21/10/2026)
@@ -73,7 +73,10 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 
 **Week 9**
 - End-to-end test of a whole visit with a real login (TC-RES-28).
-- Test-case table extended to TC-RES-29, with actual results.
+- Test-case table extended to TC-RES-31, with actual results (04/11).
+- End-to-end test across modules, using Lam's order and kitchen API (TC-RES-31, 04/11). Billing is stubbed until Khoa merges.
+- NFR-01 measured: slowest search 16 ms with 50 tables and 500 reservations (TC-RES-30, 04/11).
+- Updated diagrams exported as PNG for the report: `docs/diagrams/giang/updated/` (04/11).
 
 **Week 10 (drafts)**
 - `docs/report/`: Chapter 1, Chapter 3 (Table & Reservation part), Chapter 4, Appendices B and C.

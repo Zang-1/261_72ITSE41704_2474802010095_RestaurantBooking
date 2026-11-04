@@ -44,10 +44,12 @@ ERD: `docs/diagrams/giang/README.md` §2 (Mermaid, matches Flyway `V1__table_res
 | `reservation_settings` | One row: dining minutes (180) and turn minutes (15) | Edited by the Manager (30–300 and 0–60) |
 
 ### 3.2.4 Class design and state machines
-- Class diagram: README §1.
-- Table state machine: README §3.
-- Reservation state machine: README §4.
-- Sequences: check-in (README §5) and two simultaneous bookings (README §6).
+Images for the report are in `docs/diagrams/giang/updated/`; the Mermaid sources are in `docs/diagrams/giang/README.md`.
+- Class diagram: `w8-class-table-reservation.png` (README §1).
+- ERD: `w8-erd-table-reservation.png` (README §2).
+- Table state machine: `w8-state-table.png` (README §3).
+- Reservation state machine: `w8-state-reservation.png` (README §4).
+- Sequences: check-in, `w8-sequence-check-in.png` (README §5); two simultaneous bookings, `w8-sequence-concurrent-booking.png` (README §6).
 
 Design decision: the rules live in the domain classes, not in the controllers or in React (Guidelines §4.1 item 4).
 - `DiningTable.changeStatus` is the only way to change a table's status. It refuses every move the lifecycle does not allow, so Order and Billing cannot bypass BR-05.
@@ -153,7 +155,7 @@ A booking at 19:00 blocks the table until 22:15. A booking at 22:15 is accepted,
 - README run guide, with the H2 demo profile that needs no MySQL.
 - Design preview: `docs/design/ui-demo.html`.
 - Interview notes and requirement changes.
-- Updated diagrams: `docs/diagrams/giang/README.md`.
+- Updated diagrams: `docs/diagrams/giang/README.md` (Mermaid) and `docs/diagrams/giang/updated/` (PNG).
 - Security check: `docs/security-check.md`.
 
 ## 3.4 Testing and Evaluation (module part)
@@ -163,27 +165,33 @@ A booking at 19:00 blocks the table until 22:15. A booking at 22:15 is accepted,
   - Automated unit tests of the domain rules (JUnit 5, no Spring).
   - API tests with MockMvc on an in-memory H2 database with the real seed data.
   - One concurrent test with two threads and real transactions.
-  - One end-to-end test that logs in and runs a whole visit.
+  - End-to-end tests with a real login:
+    - a whole visit on one table (TC-RES-28);
+    - a visit across modules: reservation, order, kitchen, then the table released (TC-RES-31).
+  - One performance test for NFR-01 (TC-RES-30).
   - Manual checks in the browser for the rows marked "UI".
 - **Test cases.**
-  - TC-RES-01 to TC-RES-29, in `tests/test-cases-table-reservation.md`, Appendix [x].
+  - TC-RES-01 to TC-RES-31, in `tests/test-cases-table-reservation.md`, Appendix [x].
   - Columns: ID, purpose, precondition, input, expected, actual, pass/fail, automated test.
-- **Results** on 03/11/2026:
-  - `mvn test` runs 79 automated tests: 52 for this module and 27 for Order & Kitchen. 0 failures.
-  - All 29 documented cases pass.
+- **Results** on 04/11/2026:
+  - `mvn test` runs 115 automated tests: 54 for this module and 61 for Order & Kitchen. 0 failures.
+  - All 31 documented cases pass.
+  - [Update the counts when Billing is merged.]
 
 ### 3.4.2 System evaluation
 **Strengths**
 - Every rule is enforced on the server and tested at the boundary, for example 22:14 refused and 22:15 accepted.
 - Double booking is impossible even under concurrency (TC-RES-27).
 - The messages tell staff what to do, not only what went wrong.
+- NFR-01 is met with a wide margin: with 50 tables and 500 reservations in a week, the slowest of five searches took 16 ms, against a limit of 2,000 ms (TC-RES-30).
 
 **Limitations**
 - No rate limit on login.
 - Demo passwords are in the README.
 - No HTTPS of its own.
 - The floor overview does not refresh by itself.
-- [Performance NFR-01 measured at v1.0: …]
+- NFR-01 was measured on the in-memory H2 test database, not on MySQL. MySQL adds network and disk time, but the query uses the index on (`table_id`, `start_time`).
+- The cross-module test closes the order directly, because the Billing module is not merged yet.
 
 ### 3.4.3 Comparison between theory and practice
 - **Theory → practice.**

@@ -39,8 +39,8 @@ Build a web application with three staff roles that lets a small or medium-sized
 | 1 | 15 use cases end-to-end for three roles | UC-01 to UC-06 (Table & Reservation) done. [Lam: UC-07 to UC-10] [Khoa: UC-11 to UC-15] |
 | 2 | 13 business rules in the service layer, each with at least one automated test | BR-01 to BR-05 done, each tested. [BR-06 to BR-08 Lam] [BR-09 to BR-13 Khoa] |
 | 3 | Zero overlapping reservations, also for two bookings at the same moment | Done: row lock and automated concurrent test (TC-RES-27) |
-| 4 | At least 30 documented test cases with expected and actual results | 29 for Table & Reservation (TC-RES-01 to TC-RES-29). [Order: TC-ORD-…] [Billing: …] |
-| 5 | Measurable NFRs, e.g. search under 2 s | [Not measured yet. Measure the search time at v1.0 with 50 tables and 500 reservations, and enter the figure here and in 3.4.2] |
+| 4 | At least 30 documented test cases with expected and actual results | 31 for Table & Reservation (TC-RES-01 to TC-RES-31). [Order & Kitchen: TC-MENU, TC-ORD, TC-KIT — Lam to count] [Billing: …] |
+| 5 | Measurable NFRs, e.g. search under 2 s | NFR-01 met: with 50 tables and 500 reservations in a week the slowest search took 16 ms (TC-RES-30, H2 test database). [Lam: NFR-02, NFR-03] [Khoa: NFR-04] |
 
 ## 1.3 Scope of the Study
 
