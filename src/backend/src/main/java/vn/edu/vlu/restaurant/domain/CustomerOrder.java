@@ -159,6 +159,15 @@ public class CustomerOrder {
         return lines.stream().filter(line -> lineId.equals(line.getId())).findFirst();
     }
 
+    /**
+     * The guests move to another table (FR-19). Only an open order moves; the table statuses are
+     * changed by the caller through {@link DiningTable#changeStatus}.
+     */
+    public void moveTo(DiningTable target) {
+        requireOpen();
+        this.table = target;
+    }
+
     /** The bill is generated: no more changes until the bill is cancelled (BR-09). */
     public void lock() {
         if (status == OrderStatus.OPEN) {

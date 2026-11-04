@@ -40,15 +40,48 @@ public class OrderService {
     private final DiningTableRepository tableRepository;
     private final MenuItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final TableService tableService;
     private final Clock clock;
 
     public OrderService(CustomerOrderRepository orderRepository, DiningTableRepository tableRepository,
-                        MenuItemRepository itemRepository, UserRepository userRepository, Clock clock) {
+                        MenuItemRepository itemRepository, UserRepository userRepository,
+                        TableService tableService, Clock clock) {
         this.orderRepository = orderRepository;
         this.tableRepository = tableRepository;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.tableService = tableService;
         this.clock = clock;
+    }
+
+    /**
+     * Moves an open order to a free table (FR-19). The new table is taken with Giang's seatParty, so
+     * BR-01 to BR-03 and BR-05 apply as for a walk-in; the old table then needs cleaning. Both table
+     * rows are locked, lower id first, so two moves at the same time cannot deadlock.
+     */
+    public OrderResponse moveOrder(Long orderId, Long targetTableId, int partySize) {
+        CustomerOrder order = findOrderForUpdate(orderId);
+        DiningTable from = order.getTable();
+        if (from.getId().equals(targetTableId)) {
+            throw new InvalidInputException("tableId", "The order is already at table " + from.getNumber());
+        }
+        DiningTable to;
+        if (from.getId() < targetTableId) {
+            tableService.lockTable(from.getId());
+            to = lockTarget(targetTableId);
+        } else {
+            to = lockTarget(targetTableId);
+            tableService.lockTable(from.getId());
+        }
+        order.moveTo(to);
+        tableService.seatParty(to, partySize);
+        from.changeStatus(TableStatus.NEEDS_CLEANING);
+        return OrderResponse.from(order);
+    }
+
+    private DiningTable lockTarget(Long tableId) {
+        return tableRepository.findByIdForUpdate(tableId)
+                .orElseThrow(() -> new InvalidInputException("tableId", "Table not found"));
     }
 
     /**
