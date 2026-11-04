@@ -5,7 +5,7 @@ import { COURSE_LABELS, formatPrice } from '../format.js';
 
 const EMPTY_ITEM = { id: null, name: '', description: '', price: '', course: 'MAIN', categoryId: '' };
 
-/** UC-08 Manage menu (Manager only): items, categories, and the in-stock switch. */
+/** UC-07 Manage menu (Manager only): items, categories, and the in-stock switch. */
 export default function MenuPage() {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);

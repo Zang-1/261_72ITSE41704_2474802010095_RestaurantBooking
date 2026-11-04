@@ -14,7 +14,7 @@ import vn.edu.vlu.restaurant.exception.NotFoundException;
 import vn.edu.vlu.restaurant.repository.MenuCategoryRepository;
 import vn.edu.vlu.restaurant.repository.MenuItemRepository;
 
-/** Menu categories and items (FR-08, UC-08) and the sold-out switch used by the kitchen (UC-10). */
+/** Menu categories and items (FR-16, UC-07) and the sold-out switch used by the kitchen (UC-10). */
 @Service
 @Transactional
 public class MenuService {

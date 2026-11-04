@@ -9,7 +9,7 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 
 | ID | Purpose | Precondition | Input | Expected result | Actual result | Pass/Fail | Automated test |
 |---|---|---|---|---|---|---|---|
-| TC-MENU-01 | Manager adds a menu item (UC-08, FR-08) | Logged in as Manager; category exists | name "Grilled squid", price 120000, course MAIN | 201; item is in stock and active | As expected | Pass | MenuControllerTest.createItem |
+| TC-MENU-01 | Manager adds a menu item (UC-07, FR-16) | Logged in as Manager; category exists | name "Grilled squid", price 120000, course MAIN | 201; item is in stock and active | As expected | Pass | MenuControllerTest.createItem |
 | TC-MENU-02 | Price must be positive (NFR-11) | Logged in as Manager | price 0 | 400; message "Price must be between 1 and 10,000,000 VND" next to the price field | As expected | Pass | MenuControllerTest.priceMustBePositive |
 | TC-MENU-03 | Blank name is rejected (NFR-11) | Logged in as Manager | name "   " | 400; message "Item name is required" next to the name field | As expected | Pass | MenuControllerTest.nameIsRequired |
 | TC-MENU-04 | Duplicate name in the same category is rejected | Item "Fresh spring rolls" exists in Appetizers | same name in capitals, same category | 400; message on the name field | As expected | Pass | MenuControllerTest.duplicateNameInCategory |
