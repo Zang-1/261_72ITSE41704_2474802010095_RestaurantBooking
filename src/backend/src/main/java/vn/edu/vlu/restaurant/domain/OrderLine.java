@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 /**
@@ -44,6 +45,10 @@ public class OrderLine {
     @Column(length = MAX_NOTE_LENGTH)
     private String note;
 
+    /** Set when the line is sent to the kitchen; null while the line is unsent. */
+    @OneToOne(mappedBy = "orderLine", fetch = FetchType.LAZY)
+    private KitchenTicketItem ticketItem;
+
     protected OrderLine() {
     }
 
@@ -66,8 +71,21 @@ public class OrderLine {
         this.note = note;
     }
 
+    void attach(KitchenTicketItem item) {
+        this.ticketItem = item;
+    }
+
+    public boolean isSent() {
+        return ticketItem != null;
+    }
+
+    /** Cancelled before cooking started; the line stays for the kitchen history but is not charged. */
+    public boolean isCancelled() {
+        return isSent() && ticketItem.getStatus() == ItemStatus.CANCELLED;
+    }
+
     public long lineTotal() {
-        return unitPrice * quantity;
+        return isCancelled() ? 0 : unitPrice * quantity;
     }
 
     public Long getId() {
@@ -92,5 +110,9 @@ public class OrderLine {
 
     public String getNote() {
         return note;
+    }
+
+    public KitchenTicketItem getTicketItem() {
+        return ticketItem;
     }
 }

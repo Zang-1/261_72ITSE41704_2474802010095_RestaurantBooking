@@ -5,6 +5,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +84,14 @@ public class GlobalExceptionHandler {
         log.warn("Lock timeout: {}", ex.getMostSpecificCause().getMessage());
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(ApiError.of("Someone else is changing this table right now. Please try again."));
+    }
+
+    /** Someone changed the same kitchen item a moment earlier, e.g. a cook started the dish the waiter is cancelling (BR-08). */
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ApiError> handleOptimisticLock(OptimisticLockingFailureException ex) {
+        log.warn("Optimistic lock failure: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiError.of("Someone else changed this dish a moment ago. Refresh and try again."));
     }
 
     /** Role checks from @PreAuthorize must stay 403, not fall through to the generic handler. */

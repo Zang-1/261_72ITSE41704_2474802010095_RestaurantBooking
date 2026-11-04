@@ -19,9 +19,10 @@ import vn.edu.vlu.restaurant.dto.OrderLineRequest;
 import vn.edu.vlu.restaurant.dto.OrderLineUpdateRequest;
 import vn.edu.vlu.restaurant.dto.OrderRequest;
 import vn.edu.vlu.restaurant.dto.OrderResponse;
+import vn.edu.vlu.restaurant.dto.SendOrderRequest;
 import vn.edu.vlu.restaurant.service.OrderService;
 
-/** UC-08 Create order: the Waiter/Host opens an order for a table and edits its lines (FR-11, FR-12). */
+/** UC-08 Create order and send to kitchen (FR-11 to FR-14, FR-18). */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -66,9 +67,17 @@ public class OrderController {
         return orderService.changeLine(id, lineId, request);
     }
 
+    /** Removes an unsent line, or cancels a sent one that the kitchen has not started (BR-08). */
     @DeleteMapping("/{id}/lines/{lineId}")
     @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
     public OrderResponse removeLine(@PathVariable Long id, @PathVariable Long lineId) {
         return orderService.removeLine(id, lineId);
+    }
+
+    /** UC-08 step 4: Send. The body is optional; without it every unsent line is sent. */
+    @PostMapping("/{id}/send")
+    @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
+    public OrderResponse send(@PathVariable Long id, @RequestBody(required = false) SendOrderRequest request) {
+        return orderService.sendToKitchen(id, request == null ? null : request.lineIds());
     }
 }
