@@ -22,7 +22,7 @@ import vn.edu.vlu.restaurant.dto.MenuItemResponse;
 import vn.edu.vlu.restaurant.service.MenuService;
 
 /**
- * Menu management (UC-08). Every staff role can read the menu; only the Manager changes it, and the
+ * Menu management (UC-07). Every staff role can read the menu; only the Manager changes it, and the
  * kitchen can mark an item sold out (UC-10).
  */
 @RestController

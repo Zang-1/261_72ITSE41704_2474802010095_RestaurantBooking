@@ -19,7 +19,7 @@ import vn.edu.vlu.restaurant.domain.MenuItem;
 import vn.edu.vlu.restaurant.repository.MenuCategoryRepository;
 import vn.edu.vlu.restaurant.repository.MenuItemRepository;
 
-/** UC-08 Manage menu (FR-08) and the sold-out switch of UC-10 (BR-07). */
+/** UC-07 Manage menu (FR-16) and the sold-out switch of UC-10 (FR-17, BR-07). */
 class MenuControllerTest extends ApiTestSupport {
 
     private static final RequestPostProcessor MANAGER = user("manager").roles("MANAGER");

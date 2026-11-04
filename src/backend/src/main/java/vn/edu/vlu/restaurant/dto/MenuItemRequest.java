@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import vn.edu.vlu.restaurant.domain.Course;
 
-/** Create or edit a menu item (FR-08). The price is in VND. */
+/** Create or edit a menu item (FR-16). The price is in VND. */
 public record MenuItemRequest(
         @NotBlank(message = "Item name is required")
         @Size(max = 100, message = "Item name must be at most 100 characters")
