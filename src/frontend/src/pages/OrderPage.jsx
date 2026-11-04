@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api.js';
 import { FormError } from '../components/FormField.jsx';
 import { COURSE_LABELS, ITEM_STATUS_LABELS, formatPrice } from '../format.js';
@@ -8,9 +8,11 @@ import usePolling from '../usePolling.js';
 /** The menu is reloaded every 3 seconds, so a sold-out dish disappears within 5 seconds (NFR-03). */
 const POLL_MS = 3000;
 
-/** UC-08 Create order and send to kitchen (FR-11 to FR-14, FR-18), opened from an Occupied table. */
+/** UC-08 Create order and send to kitchen (FR-11 to FR-14, FR-18, FR-19), opened from an Occupied table. */
 export default function OrderPage() {
   const tableId = Number(useParams().tableId);
+  const navigate = useNavigate();
+  const [tables, setTables] = useState([]);
   const [table, setTable] = useState(null);
   const [order, setOrder] = useState(undefined);  // undefined: loading, null: the table has no order yet
   const [menu, setMenu] = useState([]);
@@ -18,7 +20,10 @@ export default function OrderPage() {
   const [message, setMessage] = useState('');
 
   const load = useCallback(() => {
-    api.get('/tables').then((tables) => setTable(tables.find((t) => t.id === tableId) ?? null)).catch(setError);
+    api.get('/tables').then((all) => {
+      setTables(all);
+      setTable(all.find((t) => t.id === tableId) ?? null);
+    }).catch(setError);
     api.get(`/orders?tableId=${tableId}`).then((orders) => setOrder(orders[0] ?? null)).catch(setError);
     api.get('/menu/items?availableOnly=true').then(setMenu).catch(setError);
   }, [tableId]);
@@ -45,6 +50,18 @@ export default function OrderPage() {
   const removeLine = (line) => run(() => api.del(`/orders/${order.id}/lines/${line.id}`),
     line.kitchenStatus ? `"${line.menuItemName}" cancelled.` : '');
   const send = () => run(() => api.post(`/orders/${order.id}/send`), 'Sent to the kitchen.');
+
+  async function move(targetId, partySize) {
+    setError(null);
+    setMessage('');
+    try {
+      const moved = await api.post(`/orders/${order.id}/move`, { tableId: targetId, partySize });
+      navigate(`/order/${moved.tableId}`);
+      setMessage(`Order moved from table ${table.number} to table ${moved.tableNumber}. Table ${table.number} needs cleaning.`);
+    } catch (err) {
+      setError(err);
+    }
+  }
 
   const unsent = order ? order.lines.filter((line) => !line.kitchenStatus).length : 0;
 
@@ -102,10 +119,39 @@ export default function OrderPage() {
                 <OrderLineRow key={`${line.id}-${line.quantity}-${line.note}`} line={line} onChange={changeLine} onRemove={removeLine} />
               ))}
             </ul>
+            <MoveOrderForm key={tableId} tables={tables.filter((t) => t.status === 'AVAILABLE' && t.active)} onMove={move} />
           </section>
         </div>
       )}
     </>
+  );
+}
+
+/** FR-19: the guests move to a free table; the party size is checked against its seats (BR-02). */
+function MoveOrderForm({ tables, onMove }) {
+  const [targetId, setTargetId] = useState('');
+  const [partySize, setPartySize] = useState('2');
+
+  function submit(event) {
+    event.preventDefault();
+    if (targetId) onMove(Number(targetId), Number(partySize));
+  }
+
+  return (
+    <form className="move-order" onSubmit={submit}>
+      <h3>Move to another table</h3>
+      <div className="order-line-edit">
+        <select aria-label="New table" value={targetId} onChange={(e) => setTargetId(e.target.value)}>
+          <option value="">Choose a free table</option>
+          {tables.map((t) => (
+            <option key={t.id} value={t.id}>Table {t.number}, {t.capacity} seats, {t.sectionName}</option>
+          ))}
+        </select>
+        <input type="number" min="1" max="20" aria-label="Party size" value={partySize}
+          onChange={(e) => setPartySize(e.target.value)} />
+        <button type="submit" disabled={!targetId}>Move order</button>
+      </div>
+    </form>
   );
 }
 

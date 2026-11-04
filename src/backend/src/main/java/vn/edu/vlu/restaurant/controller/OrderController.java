@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import vn.edu.vlu.restaurant.dto.MoveOrderRequest;
 import vn.edu.vlu.restaurant.dto.OrderLineRequest;
 import vn.edu.vlu.restaurant.dto.OrderLineUpdateRequest;
 import vn.edu.vlu.restaurant.dto.OrderRequest;
@@ -22,7 +23,7 @@ import vn.edu.vlu.restaurant.dto.OrderResponse;
 import vn.edu.vlu.restaurant.dto.SendOrderRequest;
 import vn.edu.vlu.restaurant.service.OrderService;
 
-/** UC-08 Create order and send to kitchen (FR-11 to FR-14, FR-18). */
+/** UC-08 Create order and send to kitchen (FR-11 to FR-14, FR-18), and move it to another table (FR-19). */
 @RestController
 @RequestMapping("/api/orders")
 public class OrderController {
@@ -79,5 +80,12 @@ public class OrderController {
     @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
     public OrderResponse send(@PathVariable Long id, @RequestBody(required = false) SendOrderRequest request) {
         return orderService.sendToKitchen(id, request == null ? null : request.lineIds());
+    }
+
+    /** FR-19: the guests move to another free table. */
+    @PostMapping("/{id}/move")
+    @PreAuthorize(AccessRules.FRONT_OF_HOUSE)
+    public OrderResponse move(@PathVariable Long id, @Valid @RequestBody MoveOrderRequest request) {
+        return orderService.moveOrder(id, request.tableId(), request.partySize());
     }
 }
