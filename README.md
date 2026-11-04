@@ -71,7 +71,9 @@ Accounts, 4 sections and 27 tables (the layout of the restaurant interviewed in 
 | waiter | Waiter@2026 | Waiter/Host |
 | kitchen | Kitchen@2026 | Kitchen Staff |
 
-Seeding can be switched off with `app.seed.enabled=false`.
+A sample menu (29 dishes, `MenuSeeder`) and 12 finished orders from the past week with their kitchen tickets (`OrderSeeder`) are also seeded on an empty database.
+
+Seeding can be switched off with `app.seed.enabled=false`; the sample orders alone with `app.seed.sample-orders=false`.
 
 ## Documentation
 - `docs/requirements/` — requirement drafts for each module, and `requirement-changes.md` (changes since the Proposal)
