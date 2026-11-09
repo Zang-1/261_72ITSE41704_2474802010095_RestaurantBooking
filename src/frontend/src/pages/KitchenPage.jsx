@@ -12,10 +12,12 @@ const LATE_MINUTES = 15;
 /** UC-09 Process kitchen ticket (FR-15): tickets oldest first, dishes in course order (BR-06). */
 export default function KitchenPage() {
   const [tickets, setTickets] = useState([]);
+  const [finished, setFinished] = useState([]);
   const [error, setError] = useState(null);
   const [now, setNow] = useState(() => new Date());
 
   const load = useCallback(() => {
+    api.get('/kitchen/tickets/finished').then(setFinished).catch(setError);
     return api.get('/kitchen/tickets')
       .then((data) => {
         setTickets(data);
@@ -52,53 +54,68 @@ export default function KitchenPage() {
       <FormError error={error} />
       {tickets.length === 0 && <p className="muted">No dishes waiting. New tickets appear here by themselves.</p>}
       <div className="ticket-rail">
-        {tickets.map((ticket) => {
-          const waited = minutesSince(ticket.sentAt, now);
-          return (
-            <article key={ticket.id} className={`ticket${waited >= LATE_MINUTES ? ' late' : ''}`}>
-              <header className="ticket-head">
-                <span className="ticket-table">Table {ticket.tableNumber}</span>
-                <span className="ticket-time">
-                  Sent {timeOf(ticket.sentAt)}, {waited === 0 ? 'just now' : `${waited} min ago`}
-                </span>
-              </header>
-              {groupByCourse(ticket.items).map(([course, items]) => (
-                <section key={course} className="ticket-course">
-                  <h3>{COURSE_LABELS[course]}</h3>
-                  <ul>
-                    {items.map((item) => (
-                      <li key={item.id} className={`ticket-item item-${item.status}`}>
-                        <div className="ticket-dish">
-                          <strong>{item.quantity} × {item.menuItemName}</strong>
-                          {item.note && <span className="ticket-note">{item.note}</span>}
-                        </div>
-                        <div className="ticket-actions">
-                          {item.status === 'NEW' && (
-                            <button type="button" className="primary" onClick={() => move(item, 'start')}>Start</button>
-                          )}
-                          {item.status === 'IN_PROGRESS' && (
-                            <button type="button" className="primary" onClick={() => move(item, 'ready')}>Ready</button>
-                          )}
-                          {item.status === 'READY' && (
-                            <>
-                              <span className="item-status">{ITEM_STATUS_LABELS.READY}</span>
-                              <button type="button" className="link" onClick={() => sendBack(item)}>Sent back</button>
-                            </>
-                          )}
-                          {item.status === 'IN_PROGRESS' && <span className="item-status">Cooking</span>}
-                          {item.status === 'CANCELLED' && <span className="item-status">{ITEM_STATUS_LABELS.CANCELLED}</span>}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </article>
-          );
-        })}
+        {tickets.map((ticket) => (
+          <Ticket key={ticket.id} ticket={ticket} now={now} onMove={move} onSendBack={sendBack} />
+        ))}
       </div>
+      {finished.length > 0 && (
+        <details className="card sold-out">
+          <summary>Finished tickets ({finished.length})</summary>
+          <div className="ticket-rail">
+            {finished.map((ticket) => (
+              <Ticket key={ticket.id} ticket={ticket} now={now} onMove={move} onSendBack={sendBack} />
+            ))}
+          </div>
+        </details>
+      )}
       <SoldOutPanel />
     </>
+  );
+}
+
+function Ticket({ ticket, now, onMove, onSendBack }) {
+  const waited = minutesSince(ticket.sentAt, now);
+  const late = waited >= LATE_MINUTES && ticket.items.some((item) => item.status === 'NEW' || item.status === 'IN_PROGRESS');
+  return (
+    <article className={`ticket${late ? ' late' : ''}`}>
+      <header className="ticket-head">
+        <span className="ticket-table">Table {ticket.tableNumber}</span>
+        <span className="ticket-time">
+          Sent {timeOf(ticket.sentAt)}, {waited === 0 ? 'just now' : `${waited} min ago`}
+        </span>
+      </header>
+      {groupByCourse(ticket.items).map(([course, items]) => (
+        <section key={course} className="ticket-course">
+          <h3>{COURSE_LABELS[course]}</h3>
+          <ul>
+            {items.map((item) => (
+              <li key={item.id} className={`ticket-item item-${item.status}`}>
+                <div className="ticket-dish">
+                  <strong>{item.quantity} × {item.menuItemName}</strong>
+                  {item.note && <span className="ticket-note">{item.note}</span>}
+                </div>
+                <div className="ticket-actions">
+                  {item.status === 'NEW' && (
+                    <button type="button" className="primary" onClick={() => onMove(item, 'start')}>Start</button>
+                  )}
+                  {item.status === 'IN_PROGRESS' && (
+                    <button type="button" className="primary" onClick={() => onMove(item, 'ready')}>Ready</button>
+                  )}
+                  {item.status === 'READY' && (
+                    <>
+                      <span className="item-status">{ITEM_STATUS_LABELS.READY}</span>
+                      <button type="button" className="link" onClick={() => onSendBack(item)}>Sent back</button>
+                    </>
+                  )}
+                  {item.status === 'IN_PROGRESS' && <span className="item-status">Cooking</span>}
+                  {item.status === 'CANCELLED' && <span className="item-status">{ITEM_STATUS_LABELS.CANCELLED}</span>}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </article>
   );
 }
 
