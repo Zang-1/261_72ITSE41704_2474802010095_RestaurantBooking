@@ -34,6 +34,12 @@ public class KitchenController {
         return kitchenService.listActiveTickets();
     }
 
+    @GetMapping("/tickets/finished")
+    @PreAuthorize(AccessRules.KITCHEN)
+    public List<KitchenTicketResponse> listFinishedTickets() {
+        return kitchenService.listFinishedTickets();
+    }
+
     @PostMapping("/items/{id}/start")
     @PreAuthorize(AccessRules.KITCHEN)
     public KitchenTicketItemResponse start(@PathVariable Long id) {
