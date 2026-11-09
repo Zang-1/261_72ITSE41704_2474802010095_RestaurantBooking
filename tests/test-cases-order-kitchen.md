@@ -5,7 +5,7 @@ Menu management (Week 5–6), order taking and kitchen tickets (Week 7–8). Col
 
 Every row is also an automated test (column **Automated test**) in `src/backend/src/test`, run with
 `mvn test` on an in-memory H2 database seeded with the standard accounts and a sample menu.
-**Actual result** and **Pass/Fail** come from the `mvn test` run on the author's machine on 5/11/2026 (124 tests, 0 failures).
+**Actual result** and **Pass/Fail** come from the `mvn test` run on the author's machine on 9/11/2026 (125 tests, 0 failures).
 
 | ID | Purpose | Precondition | Input | Expected result | Actual result | Pass/Fail | Automated test |
 |---|---|---|---|---|---|---|---|
@@ -59,3 +59,4 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 | TC-KIT-11 | BR-06 rule, unit test | Unit test, no database | send a Main while a Starter is unsent; send the Starter first, then the Main | First refused, nothing sent; second gives two tickets | As expected | Pass | KitchenTicketTest.laterCourseCannotBeSentWhileAnEarlierCourseIsUnsent, earlierCourseCanBeSentFirst |
 | TC-KIT-12 | BR-08 rule, unit test | Unit test, item In Progress | cancel the line; add a new dish and send | Cancel refused; new dish goes on a second ticket | As expected | Pass | KitchenTicketTest.itemInProgressCannotBeCancelled, newDishesAfterCookingStartsGoOnANewTicket |
 | TC-KIT-13 | Item state diagram, unit test | Unit test | New → Ready; then New → In Progress → Ready → In Progress without and with a reason | Skips and a send-back without a reason are refused; history has 4 steps with the reason | As expected | Pass | KitchenTicketTest.itemLifecycleFollowsTheStateDiagram |
+| TC-KIT-14 | A finished ticket stays reachable (UC-09 3a) | Every dish of the ticket is Ready; order is open | GET /api/kitchen/tickets/finished; send the dish back; close the order | Ticket listed; after send-back it returns to the active list; after closing it is not listed; Waiter/Host gets 403 | As expected | Pass | KitchenControllerTest.finishedTicketsCanStillBeSentBack |

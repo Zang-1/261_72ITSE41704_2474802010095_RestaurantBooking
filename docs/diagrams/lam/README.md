@@ -276,3 +276,46 @@ sequenceDiagram
     end
 ```
 
+## 6. Sequence, take an order (UC-08 steps 1-3)
+
+Image: `updated/w8-sequence-take-order.png`
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor W as Waiter/Host
+    participant P as OrderPage
+    participant M as MenuController
+    participant C as OrderController
+    participant S as OrderService
+    participant R as Repositories
+    W->>P: Order, on an Occupied table of the floor overview
+    loop every 3 seconds (NFR-03)
+        P->>M: GET /api/menu/items?availableOnly=true
+        M-->>P: in-stock dishes, grouped by category on the page
+        P->>C: GET /api/orders?tableId=
+        C-->>P: the unpaid order of the table, or none
+    end
+    opt the table has no order yet
+        W->>P: Start order
+        P->>C: POST /api/orders
+        C->>S: createOrder(tableId, username)
+        S->>R: findByIdForUpdate(tableId)
+        alt table not Occupied, or it already has an open order
+            S-->>P: 409 with the message
+        else
+            S->>R: save the order, status OPEN
+            S-->>P: 201, empty order
+        end
+    end
+    W->>P: Pick a dish
+    P->>C: POST /api/orders/{id}/lines
+    C->>S: addLine(orderId, request)
+    S->>R: findByIdForUpdate(orderId), then the menu item
+    alt dish out of stock (BR-07) or order locked (BR-09)
+        S-->>P: 409 with the message
+    else
+        S->>R: flush the new line, price copied from the menu
+        S-->>P: 201, updated order
+    end
+```

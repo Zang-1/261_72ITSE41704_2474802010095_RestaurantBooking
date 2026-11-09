@@ -126,6 +126,39 @@ class KitchenControllerTest extends ApiTestSupport {
     }
 
     @Test
+    @DisplayName("TC-KIT-14 A ticket with every dish Ready stays reachable until the order closes, so a dish can be sent back")
+    void finishedTicketsCanStillBeSentBack() throws Exception {
+        long orderId = createOrder(occupiedTable());
+        addLine(orderId, item(Course.MAIN));
+        long itemId = sendAndGetTicketItem(orderId);
+        mockMvc.perform(post("/api/kitchen/items/{id}/start", itemId).with(KITCHEN));
+        mockMvc.perform(get("/api/kitchen/tickets/finished").with(KITCHEN))
+                .andExpect(jsonPath("$.length()").value(0));
+
+        mockMvc.perform(post("/api/kitchen/items/{id}/ready", itemId).with(KITCHEN));
+        mockMvc.perform(get("/api/kitchen/tickets/finished").with(KITCHEN))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].items[0].status").value("READY"));
+
+        mockMvc.perform(post("/api/kitchen/items/{id}/send-back", itemId).with(KITCHEN)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(Map.of("reason", "Too salty"))))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/kitchen/tickets/finished").with(KITCHEN))
+                .andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(get("/api/kitchen/tickets").with(KITCHEN))
+                .andExpect(jsonPath("$.length()").value(1));
+
+        mockMvc.perform(post("/api/kitchen/items/{id}/ready", itemId).with(KITCHEN));
+        ticketRepository.findAll().get(0).getOrder().close();
+        mockMvc.perform(get("/api/kitchen/tickets/finished").with(KITCHEN))
+                .andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(get("/api/kitchen/tickets/finished").with(WAITER))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     @DisplayName("TC-KIT-06 An item cannot skip In Progress")
     void cannotSkipInProgress() throws Exception {
         long orderId = createOrder(occupiedTable());
