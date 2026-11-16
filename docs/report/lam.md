@@ -1,4 +1,4 @@
-# Final Project Report — Tang Thoai Lam's part
+# Final Project Report - Tang Thoai Lam's part
 
 Draft by Tang Thoai Lam, 04/11/2026. English, as the course requires.
 
