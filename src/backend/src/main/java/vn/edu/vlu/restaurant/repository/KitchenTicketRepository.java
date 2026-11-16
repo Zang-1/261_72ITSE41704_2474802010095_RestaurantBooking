@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import vn.edu.vlu.restaurant.domain.ItemStatus;
 import vn.edu.vlu.restaurant.domain.KitchenTicket;
+import vn.edu.vlu.restaurant.domain.OrderStatus;
 
 public interface KitchenTicketRepository extends JpaRepository<KitchenTicket, Long> {
 
@@ -14,4 +15,6 @@ public interface KitchenTicketRepository extends JpaRepository<KitchenTicket, Lo
     @Query("select distinct t from KitchenTicket t join t.items i where i.status in :statuses "
             + "order by t.sentAt asc, t.id asc")
     List<KitchenTicket> findWithItemStatusIn(@Param("statuses") Collection<ItemStatus> statuses);
+
+    List<KitchenTicket> findByOrderStatusOrderBySentAtDescIdDesc(OrderStatus status);
 }

@@ -50,6 +50,8 @@ export default function OrderPage() {
   const removeLine = (line) => run(() => api.del(`/orders/${order.id}/lines/${line.id}`),
     line.kitchenStatus ? `"${line.menuItemName}" cancelled.` : '');
   const send = () => run(() => api.post(`/orders/${order.id}/send`), 'Sent to the kitchen.');
+  const sendNextCourse = () => run(() => api.post(`/orders/${order.id}/send`, { lineIds: nextLines.map((line) => line.id) }),
+    `${COURSE_LABELS[nextCourse]} dishes sent to the kitchen.`);
 
   async function move(targetId, partySize) {
     setError(null);
@@ -63,7 +65,11 @@ export default function OrderPage() {
     }
   }
 
-  const unsent = order ? order.lines.filter((line) => !line.kitchenStatus).length : 0;
+  const unsentLines = order ? order.lines.filter((line) => !line.kitchenStatus) : [];
+  const unsent = unsentLines.length;
+  // COURSE_LABELS is in meal order, so this is the earliest course still unsent (BR-06)
+  const nextCourse = Object.keys(COURSE_LABELS).find((course) => unsentLines.some((line) => line.course === course));
+  const nextLines = unsentLines.filter((line) => line.course === nextCourse);
 
   return (
     <>
@@ -108,9 +114,16 @@ export default function OrderPage() {
           <section className="card">
             <div className="page-head">
               <h2>Order</h2>
-              <button type="button" className="primary" onClick={send} disabled={unsent === 0}>
-                Send to kitchen{unsent > 0 ? ` (${unsent})` : ''}
-              </button>
+              <div className="order-send">
+                {nextLines.length < unsent && (
+                  <button type="button" onClick={sendNextCourse}>
+                    Send {COURSE_LABELS[nextCourse]} only ({nextLines.length})
+                  </button>
+                )}
+                <button type="button" className="primary" onClick={send} disabled={unsent === 0}>
+                  Send to kitchen{unsent > 0 ? ` (${unsent})` : ''}
+                </button>
+              </div>
             </div>
             {order.lines.length === 0 && <p className="muted">Pick dishes from the menu to add them.</p>}
             <ul className="order-lines">

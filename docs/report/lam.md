@@ -256,7 +256,7 @@ ERD: `docs/diagrams/lam/updated/w8-erd-order-kitchen.png` (README §3), matching
 Images for the report are in `docs/diagrams/lam/updated/`; the Mermaid sources are in `docs/diagrams/lam/README.md`.
 - Class diagrams: `w8-class-order-menu.png` (README §1) and `w8-class-kitchen-tickets.png` (README §2).
 - State machines: ticket item `08-state-3-ticket-item.png`; order `08-state-4-order.png`.
-- Sequences: send to kitchen, `w8-sequence-send-to-kitchen.png` (README §4); kitchen display, `w8-sequence-kitchen-display.png` (README §5). Taking an order: `06-sequence-order-1-take-order.png`.
+- Sequences: send to kitchen, `w8-sequence-send-to-kitchen.png` (README §4); kitchen display, `w8-sequence-kitchen-display.png` (README §5). Taking an order, `w8-sequence-take-order.png` (README §6).
 
 Design decisions:
 - **BR-08 locks one dish.** The lock sits on the ticket item of each order line, so new dishes can still be added. The order-level `LOCKED` status is kept for Billing: it means "bill generated" (BR-09).
@@ -324,11 +324,12 @@ Same as Giang's table. Lam's module adds no library.
 | Out of stock / back in stock (FR-17, UC-10, BR-07) | item id | The item disappears from the order screen's menu within 3 s | `POST /api/menu/items/{id}/out-of-stock`, `/restock` | Kitchen display, sold-out panel |
 | Open an order (FR-11, UC-08) | table id | Order OPEN. Refused if the table is not Occupied or already has an open order | `POST /api/orders`, `GET /api/orders?tableId=` | Order screen |
 | Edit lines (FR-12) | dish, quantity 1–50, note up to 200 | Line added with the menu price copied; quantity and note changed; line removed | `POST /api/orders/{id}/lines`, `PUT` and `DELETE /api/orders/{id}/lines/{lineId}` | Order screen |
-| Send to kitchen (FR-13, FR-14, BR-06, NFR-07) | order id, optionally the line ids | One ticket in course order; refused as a whole if a dish ran out or an earlier course is left unsent | `POST /api/orders/{id}/send` | Order screen |
+| Send to kitchen (FR-13, FR-14, BR-06, NFR-07) | order id; all unsent dishes, or only the earliest unsent course | One ticket in course order; refused as a whole if a dish ran out or an earlier course is left unsent | `POST /api/orders/{id}/send` | Order screen |
 | Move an order to another table (FR-19) | order id, new table, party size | Order on the new table, which becomes Occupied; the old table needs cleaning. Refused if the new table is not free, too small or booked soon (BR-01 to BR-03), or the order is locked | `POST /api/orders/{id}/move` | Order screen |
 | Cancel a sent dish (FR-18, BR-08) | order id, line id | Cancelled while New and removed from the total; refused once In Progress | `DELETE /api/orders/{id}/lines/{lineId}` | Order screen |
 | Kitchen display (FR-14, FR-15, UC-09) | — (polls every 2 s) | Tickets with a dish still New or In Progress, oldest first, dishes by course | `GET /api/kitchen/tickets` | Kitchen display |
 | Change a dish's status (FR-15, UC-09) | item id; a reason when sent back | New → In Progress → Ready; Ready → In Progress with a reason. The waiter sees the status | `POST /api/kitchen/items/{id}/start`, `/ready`, `/send-back` | Kitchen display, order screen |
+| Finished tickets (UC-09 alternative 3a) | — (polls every 2 s) | Tickets with every dish done while the order is still open, so a dish can still be sent back | `GET /api/kitchen/tickets/finished` | Kitchen display |
 | Sample data (Week 8) | — | 29 dishes and 12 finished orders from the past week, created through the domain methods | `MenuSeeder`, `OrderSeeder` | — |
 
 **Implementation notes**
@@ -368,10 +369,10 @@ Same as Giang's table. Lam's module adds no library.
   - A persistence test of the order mapping: `OrderPersistenceTest`.
   - A test that the sample data follows the rules: `OrderSeederTest`.
   - The screens were walked through in the browser with the H2 profile: open an order, add dishes, change a quantity and a note, send, then Start and Ready on the kitchen display.
-- **Test cases.** TC-MENU-01 to 09, TC-ORD-01 to 18 and TC-KIT-01 to 13 (40 cases) in `tests/test-cases-order-kitchen.md`, Appendix [x].
-- **Results** on 05/11/2026:
-  - `mvn test`: 124 automated tests, 0 failures. 70 of them are for Order & Kitchen. Run with all Order & Kitchen pull requests merged (#13, #14, #17, #19) and FR-19. [Update when Billing is merged.]
-  - All 40 documented cases pass.
+- **Test cases.** TC-MENU-01 to 09, TC-ORD-01 to 18 and TC-KIT-01 to 14 (41 cases) in `tests/test-cases-order-kitchen.md`, Appendix [x].
+- **Results** on 09/11/2026:
+  - `mvn test`: 125 automated tests, 0 failures. 71 of them are for Order & Kitchen. Run with all Order & Kitchen pull requests merged (#13, #14, #17, #19) and FR-19. [Update when Billing is merged.]
+  - All 41 documented cases pass.
 
 #### 3.4.2 System evaluation
 **Strengths**
@@ -426,7 +427,7 @@ Same as Giang's table. Lam's module adds no library.
 
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5–8) | The automated tests were run on Lam's machine (124 passing on 05/11/2026, 70 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests merged by another member |
+| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5–8) | The automated tests were run on Lam's machine (125 passing on 09/11/2026, 71 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests |
 | Claude (Anthropic), via Claude Code | Writing the automated tests and the documented test cases TC-MENU, TC-ORD and TC-KIT | `src/backend/src/test`, `tests/test-cases-order-kitchen.md` | [Lam: e.g. compared each expected result with its requirement and business rule; checked the "actual" column against the test output] |
 | Claude (Anthropic), via Claude Code | Translating Lam's Vietnamese requirement draft; drafting the wireframes, the deployment diagram, the progress notes and this report's Chapter 2, Chapter 3 (Order & Kitchen part) and Lam's rows | `docs/requirements/`, `docs/diagrams/lam/`, `docs/progress/lam-progress.md`, `docs/report/lam.md` | [Lam: e.g. compared Chapter 2 with the interview notes and the requirement changes; checked each statement of Chapter 3 against the code] |
 
@@ -442,4 +443,4 @@ Same as Giang's table. Lam's module adds no library.
 
 | Member | Main responsibilities | Main artefacts produced | Commits | Share of work (%) | Signature |
 |---|---|---|---|---|---|
-| Tang Thoai Lam | Order & Kitchen module: menu, orders, course sequencing, kitchen display, out-of-stock; report Chapter 2 | Requirement draft; `docs/diagrams/lam/`; Flyway V2 and V3; Order & Kitchen backend and frontend; 70 automated tests and 40 test cases; sample data | [ ] | [ ] | |
+| Tang Thoai Lam | Order & Kitchen module: menu, orders, course sequencing, kitchen display, out-of-stock; report Chapter 2 | Requirement draft; `docs/diagrams/lam/`; Flyway V2 and V3; Order & Kitchen backend and frontend; 71 automated tests and 41 test cases; sample data | [ ] | [ ] | |

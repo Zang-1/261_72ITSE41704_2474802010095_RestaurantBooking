@@ -136,6 +136,7 @@ a.button.primary { background: var(--primary); border-color: var(--primary); col
 
 .sold-out { margin-top: 1.5rem; }
 .sold-out summary { cursor: pointer; font-weight: 600; }
+.sold-out .ticket-rail { margin-top: 0.75rem; }
 .sold-out-list { list-style: none; padding: 0; margin: 0.75rem 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.5rem; }
 .sold-out-list li { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 .sold-out-list li.is-out span { color: var(--danger); text-decoration: line-through; }
@@ -143,6 +144,7 @@ a.button.primary { background: var(--primary); border-color: var(--primary); col
 /* Order screen: menu on the left, the table's order on the right */
 .order-layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 1.25rem; align-items: start; }
 @media (max-width: 800px) { .order-layout { grid-template-columns: 1fr; } }
+.order-send { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
 .order-total { font-size: 1.25rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 0.5rem; }
 .menu-pick { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15rem; text-align: left; }

@@ -53,3 +53,10 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 - Move an open order to another free table: `POST /api/orders/{id}/move`, using Giang's `seatParty`, so BR-01 to BR-03 and BR-05 apply. Old table goes to Needs cleaning.
 - Order screen: Move to another table form. Tests: `OrderMoveControllerTest` (TC-ORD-14 to 18).
 - Results: `mvn test` 124 tests, 0 failures (70 for Order & Kitchen).
+
+## Week 9 work (9/11/2026)
+
+- Order screen: send only the earliest unsent course (BR-06).
+- Kitchen display: finished tickets stay reachable while the order is open, so a dish can be sent back (TC-KIT-14).
+- Take-order sequence diagram redrawn from the code; README and report updated.
+- Results: `mvn test` 125 tests, 0 failures (71 for Order & Kitchen).

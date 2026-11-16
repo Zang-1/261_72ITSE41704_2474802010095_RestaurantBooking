@@ -110,10 +110,10 @@ Week 8 (04/11/2026)
   - waiting-list order;
   - table lifecycle, check-in, and no-show after 45 minutes.
 - 31 documented test cases for Table & Reservation (`tests/test-cases-table-reservation.md`).
-- Lam: menu management, order API, send to kitchen and kitchen display API (V2, V3 migrations).
-- Automated tests: 115, all passing (`mvn test`).
+- Lam: menu management, orders, send to kitchen, kitchen tickets, order and kitchen screens, moving an order to another table (V2, V3 migrations).
+- Automated tests: 125, all passing (`mvn test`).
 
 **Next**
-- Kitchen screen (Lam); Billing & Reporting module (Khoa).
+- Billing & Reporting module (Khoa).
 - Tag `v1.0` at feature freeze (Week 9); `v0.1` and `v0.2` are done.
 - Final Report drafts in `docs/report/`.

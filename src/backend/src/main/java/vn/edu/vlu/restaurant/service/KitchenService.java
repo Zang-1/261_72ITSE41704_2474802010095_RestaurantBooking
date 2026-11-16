@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vn.edu.vlu.restaurant.domain.ItemStatus;
 import vn.edu.vlu.restaurant.domain.KitchenTicketItem;
+import vn.edu.vlu.restaurant.domain.OrderStatus;
 import vn.edu.vlu.restaurant.dto.KitchenTicketItemResponse;
 import vn.edu.vlu.restaurant.dto.KitchenTicketResponse;
 import vn.edu.vlu.restaurant.exception.NotFoundException;
@@ -34,6 +35,15 @@ public class KitchenService {
     @Transactional(readOnly = true)
     public List<KitchenTicketResponse> listActiveTickets() {
         return ticketRepository.findWithItemStatusIn(EnumSet.of(ItemStatus.NEW, ItemStatus.IN_PROGRESS)).stream()
+                .map(KitchenTicketResponse::from).toList();
+    }
+
+    /** Tickets with every dish done, newest first, while the guests are still eating; a dish can be sent back from here. */
+    @Transactional(readOnly = true)
+    public List<KitchenTicketResponse> listFinishedTickets() {
+        return ticketRepository.findByOrderStatusOrderBySentAtDescIdDesc(OrderStatus.OPEN).stream()
+                .filter(ticket -> ticket.getItems().stream().noneMatch(KitchenTicketItem::isPending)
+                        && ticket.getItems().stream().anyMatch(item -> item.getStatus() == ItemStatus.READY))
                 .map(KitchenTicketResponse::from).toList();
     }
 
