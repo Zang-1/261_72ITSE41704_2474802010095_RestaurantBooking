@@ -1,6 +1,6 @@
-# Test cases — Order & Kitchen module (Tang Thoai Lam)
+# Test cases: Order & Kitchen module (Tang Thoai Lam)
 
-Menu management (Week 5–6), order taking and kitchen tickets (Week 7–8). Columns follow Course Guidelines §6.3, same as
+Menu management (Week 5-6), order taking and kitchen tickets (Week 7-8). Columns follow Course Guidelines §6.3, same as
 `test-cases-table-reservation.md`.
 
 Every row is also an automated test (column **Automated test**) in `src/backend/src/test`, run with
@@ -55,7 +55,7 @@ Every row is also an automated test (column **Automated test**) in `src/backend/
 | TC-KIT-07 | Dish sent back needs a reason (UC-09 3a) | Item Ready | send-back with reason " ", then "Too salty" | 400 "Reason is required"; then 200, In Progress | As expected | Pass | KitchenControllerTest.sendBack |
 | TC-KIT-08 | Locked once cooking starts (FR-18, BR-08) | Item In Progress | waiter DELETE and PUT the line | 409 for both | As expected | Pass | KitchenControllerTest.lockedAfterCookingStarts |
 | TC-KIT-09 | Cancel before cooking | Item sent, still New | waiter DELETE the line | 200; line Cancelled, total 0 | As expected | Pass | KitchenControllerTest.cancelBeforeCooking |
-| TC-KIT-10 | Roles (NFR-10) | — | kitchen sends an order; waiter starts an item; waiter opens the kitchen display | 403 for all three | As expected | Pass | KitchenControllerTest.roles |
+| TC-KIT-10 | Roles (NFR-10) | None | kitchen sends an order; waiter starts an item; waiter opens the kitchen display | 403 for all three | As expected | Pass | KitchenControllerTest.roles |
 | TC-KIT-11 | BR-06 rule, unit test | Unit test, no database | send a Main while a Starter is unsent; send the Starter first, then the Main | First refused, nothing sent; second gives two tickets | As expected | Pass | KitchenTicketTest.laterCourseCannotBeSentWhileAnEarlierCourseIsUnsent, earlierCourseCanBeSentFirst |
 | TC-KIT-12 | BR-08 rule, unit test | Unit test, item In Progress | cancel the line; add a new dish and send | Cancel refused; new dish goes on a second ticket | As expected | Pass | KitchenTicketTest.itemInProgressCannotBeCancelled, newDishesAfterCookingStartsGoOnANewTicket |
 | TC-KIT-13 | Item state diagram, unit test | Unit test | New → Ready; then New → In Progress → Ready → In Progress without and with a reason | Skips and a send-back without a reason are refused; history has 4 steps with the reason | As expected | Pass | KitchenTicketTest.itemLifecycleFollowsTheStateDiagram |

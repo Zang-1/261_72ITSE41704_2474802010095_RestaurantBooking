@@ -122,7 +122,7 @@ Priority: Must, Should or Could. A changed requirement is marked with its change
 | FR-09 | The system shall enforce the table status lifecycle (BR-05); a table in Needs Cleaning cannot be assigned until it is marked clean. | Must | Giang |
 | FR-10 | The system shall display a floor overview of all tables with number, section, capacity and status, colour-coded by status. | Should | Giang |
 | FR-11 | The system shall allow a Waiter/Host to create an order for an Occupied table by choosing items from the menu grouped by category; out-of-stock items are not shown. | Must | Lam |
-| FR-12 | The system shall allow a Waiter/Host to add items, change the quantity (1–50), remove items and add a note of up to 200 characters to each order line before it is sent to the kitchen. | Must | Lam |
+| FR-12 | The system shall allow a Waiter/Host to add items, change the quantity (1-50), remove items and add a note of up to 200 characters to each order line before it is sent to the kitchen. | Must | Lam |
 | FR-13 | The system shall assign every menu item to a course (Starter, Main, Dessert) and send items to the kitchen in course order (BR-06). | Must | Lam |
 | FR-14 | When a Waiter/Host sends an order, the system shall create a kitchen ticket containing the sent items and show it on the kitchen display. | Must | Lam |
 | FR-15 | The system shall allow Kitchen Staff to change the status of each ticket item from New to In Progress to Ready, and shall show the status to the Waiter/Host. | Must | Lam |
@@ -211,7 +211,7 @@ Full specifications are in Appendix A. The use-case diagram is `docs/diagrams/gi
 
 The Order & Kitchen requirements did not change. The interview confirmed FR-17 and BR-07 (out-of-stock news travels by mouth today) and kept BR-08, even though guests rarely change an order after cooking starts (F9, F10).
 
-## Chapter 3 — Order & Kitchen module sections
+## Chapter 3: Order & Kitchen module sections
 
 ### 3.1 Problem Description and System Objectives (module part)
 
@@ -247,7 +247,7 @@ ERD: `docs/diagrams/lam/updated/w8-erd-order-kitchen.png` (README §3), matching
 | `menu_category` | Groups of dishes (Appetizers, Soups, Main dishes, Desserts, Drinks) | `name` unique |
 | `menu_item` | Dishes | Name unique within a category; `price` BIGINT VND, CHECK > 0; `course`; `in_stock`; `active` (hidden, never deleted) |
 | `customer_order` | The order of one table (ORDER is a reserved word in SQL) | FK to `dining_table` and `users`; `status` OPEN, LOCKED or CLOSED; index (`table_id`, `status`) |
-| `order_line` | One dish on an order | `quantity` CHECK 1–50; `unit_price` copied from the menu when the line is added; `note` up to 200 |
+| `order_line` | One dish on an order | `quantity` CHECK 1-50; `unit_price` copied from the menu when the line is added; `note` up to 200 |
 | `kitchen_ticket` | The dishes sent together | FK to `customer_order`; `sent_at`, indexed for the kitchen display |
 | `kitchen_ticket_item` | One dish on a ticket, with its kitchen status | `order_line_id` **unique**, so a line can never be sent twice (NFR-07); `version` for optimistic locking |
 | `item_status_change` | History of each dish | `status`, `changed_at`, `reason` (for a dish sent back) |
@@ -320,17 +320,17 @@ Same as Giang's table. Lam's module adds no library.
 
 | Function (FR / UC) | Input | Output | Endpoint | Screen |
 |---|---|---|---|---|
-| Manage menu (FR-16, UC-07) | name, category, course, price 1–10,000,000 VND | Item saved; a name already in the category is refused. Items are hidden, never deleted | `GET/POST /api/menu/items`, `PUT /api/menu/items/{id}`, `/deactivate`, `/activate`, `GET/POST /api/menu/categories` | Menu |
+| Manage menu (FR-16, UC-07) | name, category, course, price 1-10,000,000 VND | Item saved; a name already in the category is refused. Items are hidden, never deleted | `GET/POST /api/menu/items`, `PUT /api/menu/items/{id}`, `/deactivate`, `/activate`, `GET/POST /api/menu/categories` | Menu |
 | Out of stock / back in stock (FR-17, UC-10, BR-07) | item id | The item disappears from the order screen's menu within 3 s | `POST /api/menu/items/{id}/out-of-stock`, `/restock` | Kitchen display, sold-out panel |
 | Open an order (FR-11, UC-08) | table id | Order OPEN. Refused if the table is not Occupied or already has an open order | `POST /api/orders`, `GET /api/orders?tableId=` | Order screen |
-| Edit lines (FR-12) | dish, quantity 1–50, note up to 200 | Line added with the menu price copied; quantity and note changed; line removed | `POST /api/orders/{id}/lines`, `PUT` and `DELETE /api/orders/{id}/lines/{lineId}` | Order screen |
+| Edit lines (FR-12) | dish, quantity 1-50, note up to 200 | Line added with the menu price copied; quantity and note changed; line removed | `POST /api/orders/{id}/lines`, `PUT` and `DELETE /api/orders/{id}/lines/{lineId}` | Order screen |
 | Send to kitchen (FR-13, FR-14, BR-06, NFR-07) | order id; all unsent dishes, or only the earliest unsent course | One ticket in course order; refused as a whole if a dish ran out or an earlier course is left unsent | `POST /api/orders/{id}/send` | Order screen |
 | Move an order to another table (FR-19) | order id, new table, party size | Order on the new table, which becomes Occupied; the old table needs cleaning. Refused if the new table is not free, too small or booked soon (BR-01 to BR-03), or the order is locked | `POST /api/orders/{id}/move` | Order screen |
 | Cancel a sent dish (FR-18, BR-08) | order id, line id | Cancelled while New and removed from the total; refused once In Progress | `DELETE /api/orders/{id}/lines/{lineId}` | Order screen |
-| Kitchen display (FR-14, FR-15, UC-09) | — (polls every 2 s) | Tickets with a dish still New or In Progress, oldest first, dishes by course | `GET /api/kitchen/tickets` | Kitchen display |
+| Kitchen display (FR-14, FR-15, UC-09) | None (polls every 2 s) | Tickets with a dish still New or In Progress, oldest first, dishes by course | `GET /api/kitchen/tickets` | Kitchen display |
 | Change a dish's status (FR-15, UC-09) | item id; a reason when sent back | New → In Progress → Ready; Ready → In Progress with a reason. The waiter sees the status | `POST /api/kitchen/items/{id}/start`, `/ready`, `/send-back` | Kitchen display, order screen |
-| Finished tickets (UC-09 alternative 3a) | — (polls every 2 s) | Tickets with every dish done while the order is still open, so a dish can still be sent back | `GET /api/kitchen/tickets/finished` | Kitchen display |
-| Sample data (Week 8) | — | 29 dishes and 12 finished orders from the past week, created through the domain methods and billed by Khoa's `BillingSeeder` | `MenuSeeder`, `OrderSeeder` | — |
+| Finished tickets (UC-09 alternative 3a) | None (polls every 2 s) | Tickets with every dish done while the order is still open, so a dish can still be sent back | `GET /api/kitchen/tickets/finished` | Kitchen display |
+| Sample data (Week 8) | None | 29 dishes and 12 finished orders from the past week, created through the domain methods and billed by Khoa's `BillingSeeder` | `MenuSeeder`, `OrderSeeder` | None |
 
 **Implementation notes**
 - **Double click on Send (NFR-07).**
@@ -419,13 +419,13 @@ Same as Giang's table. Lam's module adds no library.
 
 ## Appendices B and C (Lam's rows)
 
-### Appendix B — Declaration of AI-tool use
+### Appendix B: Declaration of AI-tool use
 
 [Lam: check every row. The "How the output was verified" column must describe what you yourself did.]
 
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5–8) | The automated tests were run on Lam's machine (176 passing on 21/11/2026, 71 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests |
+| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5-8) | The automated tests were run on Lam's machine (176 passing on 21/11/2026, 71 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests |
 | Claude (Anthropic), via Claude Code | Writing the automated tests and the documented test cases TC-MENU, TC-ORD and TC-KIT | `src/backend/src/test`, `tests/test-cases-order-kitchen.md` | [Lam: e.g. compared each expected result with its requirement and business rule; checked the "actual" column against the test output] |
 | Claude (Anthropic), via Claude Code | Translating Lam's Vietnamese requirement draft; drafting the wireframes, the deployment diagram, the progress notes and this report's Chapter 2, Chapter 3 (Order & Kitchen part) and Lam's rows | `docs/requirements/`, `docs/diagrams/lam/`, `docs/progress/lam-progress.md`, `docs/report/lam.md` | [Lam: e.g. compared Chapter 2 with the interview notes and the requirement changes; checked each statement of Chapter 3 against the code] |
 
@@ -437,7 +437,7 @@ Same as Giang's table. Lam's module adds no library.
 - Why `unit_price` is copied into `order_line` instead of read from the menu.
 - How the kitchen display meets NFR-02 with polling.
 
-### Appendix C — Individual contribution table
+### Appendix C: Individual contribution table
 
 | Member | Main responsibilities | Main artefacts produced | Commits | Share of work (%) | Signature |
 |---|---|---|---|---|---|
