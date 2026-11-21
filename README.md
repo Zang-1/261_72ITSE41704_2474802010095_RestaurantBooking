@@ -71,9 +71,12 @@ Accounts, 4 sections and 27 tables (the layout of the restaurant interviewed in 
 | waiter | Waiter@2026 | Waiter/Host |
 | kitchen | Kitchen@2026 | Kitchen Staff |
 
-A sample menu (29 dishes, `MenuSeeder`) and 12 finished orders from the past week with their kitchen tickets (`OrderSeeder`) are also seeded on an empty database.
+A sample menu (29 dishes, `MenuSeeder`) and 12 finished orders from the past week with their kitchen tickets (`OrderSeeder`) are also seeded on an empty database. The orders are billed and paid in 12 past shifts (`BillingSeeder`), so the shift reports have data.
 
-Seeding can be switched off with `app.seed.enabled=false`; the sample orders alone with `app.seed.sample-orders=false`.
+Seeding can be switched off with `app.seed.enabled=false`; the sample orders, bills and shifts alone with `app.seed.sample-orders=false`.
+
+The Manager opens a shift in **Shifts** before the first bill of the day; without an open shift no bill can be generated or paid (BR-13).
+A step-by-step walkthrough of a whole visit, from seating to the shift report, is in `docs/run-guide.md`.
 
 ## Documentation
 - `docs/requirements/` — requirement drafts for each module, and `requirement-changes.md` (changes since the Proposal)
@@ -81,11 +84,12 @@ Seeding can be switched off with `app.seed.enabled=false`; the sample orders alo
 - `docs/diagrams/` — UML diagrams and ERDs, one folder per member
 - `docs/progress/` — weekly progress notes per member
 - `docs/interview/` — restaurant interview questions and notes
-- `docs/report/` — Final Report drafts, one Markdown file per member (`giang.md`, …)
+- `docs/report/` — Final Report drafts, one Markdown file per member (`giang.md`, `lam.md`, `khoa.md`)
+- `docs/run-guide.md` — installation, a walkthrough of a whole visit, and common problems
 - `docs/screenshots/` — screenshots used in the report
 - `docs/design/ui-demo.html` — clickable UI design preview (open it in a browser)
 - `docs/self-check-week7.md`, `docs/security-check.md` — Week 7 rubric self-check and Week 8 security check
-- `tests/` — documented test cases with expected and actual results
+- `tests/` — documented test cases with expected and actual results, and the shared template `test-case-template.md`
 
 ## Team Workflow
 - `main` always builds. Nobody commits directly to `main`.
@@ -97,7 +101,7 @@ Seeding can be switched off with `app.seed.enabled=false`; the sample orders alo
 - Release tags: `v0.1` (Week 5), `v0.2` (Week 7), `v1.0` (Week 9).
 
 ## Current Status
-Week 8 (04/11/2026)
+Week 10 (21/11/2026)
 
 **Done**
 - Project Proposal (Week 3) and design diagrams for all three modules (Week 4).
@@ -111,9 +115,9 @@ Week 8 (04/11/2026)
   - table lifecycle, check-in, and no-show after 45 minutes.
 - 31 documented test cases for Table & Reservation (`tests/test-cases-table-reservation.md`).
 - Lam: menu management, orders, send to kitchen, kitchen tickets, order and kitchen screens, moving an order to another table (V2, V3 migrations).
-- Automated tests: 125, all passing (`mvn test`).
+- Khoa: bills, even and by-item split, payments (cash, card, bank transfer, e-wallet), shifts and the shift report with a cash check, bill and shifts screens (V4 migration); 45 documented test cases (`tests/test-cases-billing.md`).
+- Automated tests: 176, all passing (`mvn test`).
 
 **Next**
-- Billing & Reporting module (Khoa).
 - Tag `v1.0` at feature freeze (Week 9); `v0.1` and `v0.2` are done.
 - Final Report drafts in `docs/report/`.

@@ -62,3 +62,16 @@ export function minutesSince(dateTime, now = new Date()) {
 export function formatPrice(amount) {
   return `${new Intl.NumberFormat('vi-VN').format(amount)} ₫`;
 }
+
+export const PAYMENT_METHOD_LABELS = {
+  CASH: 'Cash',
+  CARD: 'Card',
+  BANK_TRANSFER: 'Bank transfer',
+  E_WALLET: 'E-wallet',
+};
+
+export const SPLIT_LABELS = {
+  NONE: 'Not split',
+  EVEN: 'Split evenly',
+  BY_ITEM: 'Split by item',
+};

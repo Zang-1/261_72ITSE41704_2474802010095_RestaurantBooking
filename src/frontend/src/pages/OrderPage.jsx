@@ -76,7 +76,12 @@ export default function OrderPage() {
       <p><Link to="/floor">Floor overview</Link></p>
       <div className="page-head">
         <h1>{table ? `Table ${table.number}` : 'Order'}</h1>
-        {order && <span className="order-total">{formatPrice(order.total)}</span>}
+        {order && (
+          <span className="order-send">
+            <span className="order-total">{formatPrice(order.total)}</span>
+            <Link className="button" to={`/bill/${tableId}`}>{order.status === 'LOCKED' ? 'Open bill' : 'Bill'}</Link>
+          </span>
+        )}
       </div>
       {message && <p className="notice">{message}</p>}
       <FormError error={error} />

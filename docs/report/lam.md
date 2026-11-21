@@ -352,7 +352,6 @@ Same as Giang's table. Lam's module adds no library.
 | NFR-02 and NFR-03 with live updates | By polling | The pages ask again every 2 s (kitchen) and 3 s (menu). WebSocket would remove the polling requests |
 | NFR-05: a 5-item order in 60 seconds | [Measure with a stopwatch at v1.0] | Each dish is one click, and Send is one more click |
 | "Sent back" reason | Simple prompt | Uses the browser's prompt box instead of a form |
-| Unpaid sample orders | Closed without a bill | The sample orders are closed directly because Billing is not merged. [Remove this row when `OrderSeeder` creates bills, or tell Khoa] |
 | Pre-ordering dishes with a booking (interview F2) | Out of scope | Future work |
 
 #### 3.3.4 Other deliverables

@@ -66,6 +66,7 @@ export default function FloorPage() {
                 {table.status === 'OCCUPIED' && (
                   <>
                     <Link className="button primary" to={`/order/${table.id}`}>Order</Link>
+                    <Link className="button" to={`/bill/${table.id}`}>Bill</Link>
                     <button type="button" onClick={() => act(`/tables/${table.id}/needs-cleaning`, undefined,
                       () => `Table ${table.number} needs cleaning.`)}>Guests left</button>
                   </>

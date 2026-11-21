@@ -175,6 +175,13 @@ public class CustomerOrder {
         }
     }
 
+    /** The unpaid bill was cancelled so the guests can order more (BR-09, UC-12 alternative 4a). */
+    public void unlock() {
+        if (status == OrderStatus.LOCKED) {
+            status = OrderStatus.OPEN;
+        }
+    }
+
     public void close() {
         status = OrderStatus.CLOSED;
     }
