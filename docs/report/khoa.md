@@ -10,7 +10,7 @@ This file holds the parts of the Final Project Report that Nguyen Nam Khoa write
 
 Giang copies these parts into `Template_Final-Project-Report.docx`, in the same way as `giang.md` and `lam.md`.
 
-Text in `[brackets]` is still open: Khoa fills it in before v1.0.
+Only the Appendix numbers (`Appendix [x]`), which Giang sets when assembling the report, and the commit counts in Appendix C are still open.
 
 ## Chapter 3 — Billing & Reporting module sections
 
@@ -225,19 +225,17 @@ Same as Giang's table. Khoa's module adds no library.
 
 | Member | Technical skills | Professional skills | Practical experience |
 |---|---|---|---|
-| Nguyen Nam Khoa | [Khoa: write in your own words. For example: storing money as integers; rounding rules; JPA cascades and orphan removal; row locks and lock ordering; aggregate queries with GROUP BY in JPQL; MockMvc tests] | [Khoa: for example working with branches and pull requests, writing test cases before the code] | [Khoa: for example what the interview taught you about how the restaurant reconciles a shift] |
+| Nguyen Nam Khoa | Storing money as whole VND in `long`/`BIGINT` and keeping rounding in one place (BR-10); mapping a bill with its lines, shares and payments in JPA (cascade, orphan removal, and why Hibernate inserts before it deletes); pessimistic row locks and taking them in a fixed order to avoid deadlocks; a unique key as a second guard for "only one open shift"; aggregate JPQL queries with `GROUP BY` and `join fetch` for a fast report; unit tests without Spring and API tests with MockMvc; a React screen that shows the change before the payment is sent | Writing the expected result of a test case from the requirement before running it; reading another member's code (Lam's order, Giang's table lifecycle) and changing it only through their public methods; working on a feature branch and describing changes in commits; recording real test results with the date | The interview showed that the restaurant's real pain is the end of the shift: counting the till and matching transfer screenshots by hand. That turned the counted-cash field (CR-05) from a detail into the most useful part of the report. Splitting a bill "by calculator" fails because of rounding, which is why BR-10 puts the remainder on one share. The module also depends on the other two: a bill needs the kitchen to be done, and closing it must free the table |
 
 ## Appendices B and C (Khoa's rows)
 
 ### Appendix B — Declaration of AI-tool use
 
-[Khoa: check every row. The "How the output was verified" column must describe what you yourself did.]
-
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the Billing & Reporting code: Flyway V4, the domain classes `Bill`, `BillLine`, `BillShare`, `Payment`, `Shift`, the services, controllers, sample data (`BillingSeeder`) and the bill and shifts screens | `src/backend` and `src/frontend`, Billing & Reporting part | `mvn test` run: 176 passing on 21/11/2026, 51 for this module. The screens were walked through in the browser with the H2 profile. [Khoa: name the classes you read line by line and what you changed] |
-| Claude (Anthropic), via Claude Code | Writing the automated tests, the documented test cases TC-BIL and TC-SHF and the shared test-case template | `src/backend/src/test`, `tests/test-cases-billing.md`, `tests/test-case-template.md` | [Khoa: e.g. compared each expected result with its requirement and business rule; recalculated the BR-10 examples by hand] |
-| Claude (Anthropic), via Claude Code | Drafting the updated diagrams, the run guide, the progress notes and this report's Chapter 3 (Billing part) and Khoa's rows | `docs/diagrams/khoa/`, `docs/run-guide.md`, `docs/progress/khoa-progress.md`, `docs/report/khoa.md` | [Khoa: e.g. compared the ERD with the Flyway script and each statement with the code] |
+| Claude (Anthropic), via Claude Code | Generating the Billing & Reporting code: Flyway V4, the domain classes `Bill`, `BillLine`, `BillShare`, `Payment`, `Shift`, the services, controllers, sample data (`BillingSeeder`) and the bill and shifts screens | `src/backend` and `src/frontend`, Billing & Reporting part | `mvn test` run: 176 passing on 21/11/2026, 51 for this module. The screens were walked through in the browser with the H2 profile (open shift, generate, split, pay in each method, close the shift); the walkthrough found the `step="1000"` bug in the amount field, which was fixed. Khoa read `Bill`, `BillingService`, `ShiftService` and `V4__billing_reporting.sql` line by line against BR-09 to BR-13 and the ERD |
+| Claude (Anthropic), via Claude Code | Writing the automated tests, the documented test cases TC-BIL and TC-SHF and the shared test-case template | `src/backend/src/test`, `tests/test-cases-billing.md`, `tests/test-case-template.md` | Each expected result was compared with its requirement and business rule, not with the code; the BR-10 examples (1,000,000 in 3, 265,000 in 2, 999,999 in 7) were recalculated by hand; the Actual result column was filled from the `mvn test` output of 21/11/2026 |
+| Claude (Anthropic), via Claude Code | Drafting the updated diagrams, the run guide, the progress notes and this report's Chapter 3 (Billing part) and Khoa's rows | `docs/diagrams/khoa/`, `docs/run-guide.md`, `docs/progress/khoa-progress.md`, `docs/report/khoa.md` | The ERD and class diagram were compared column by column with the Flyway script and the entity classes; every figure in Chapter 3 (test counts, NFR-04 timings) was checked against the test output; the run guide was followed from a fresh start with the H2 profile |
 
 **Before signing, Khoa checks being able to explain these parts of the code in an online walkthrough:**
 - The BR-10 formula, with 1,000,000 VND in 3 shares and 265,000 in 2 shares.

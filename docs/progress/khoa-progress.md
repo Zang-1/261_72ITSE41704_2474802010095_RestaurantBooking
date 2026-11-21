@@ -44,5 +44,5 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 - Run guide `docs/run-guide.md`; Chapter 3 Billing part and Appendix B and C rows in `docs/report/khoa.md`.
 
 ## Still open
-- Khoa fills the `[Khoa: …]` parts of `docs/report/khoa.md` (skills gained, verification in Appendix B) in Khoa's own words.
+- Before signing Appendix B, Khoa goes through the walkthrough list in `docs/report/khoa.md`.
 - Commit counts and shares in Appendix C at v1.0.
