@@ -3,6 +3,7 @@ package vn.edu.vlu.restaurant.config;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import org.slf4j.Logger;
@@ -30,7 +31,7 @@ import vn.edu.vlu.restaurant.repository.UserRepository;
  * Creates 12 finished orders from the past week (lunch and dinner) so the kitchen history and
  * reports have data. Every order goes through the real domain methods, so the sample data follows
  * BR-06 (course order), BR-07 and BR-08. Runs after the other seeders, only when there are no orders.
- * The orders are closed without a bill because Billing (Khoa) is built later.
+ * The orders are then billed and paid in past shifts by {@link BillingSeeder}, which closes them.
  */
 @Component
 @ConditionalOnProperty(name = "app.seed.sample-orders", havingValue = "true")
@@ -44,16 +45,19 @@ public class OrderSeeder {
     private final DiningTableRepository tableRepository;
     private final MenuItemRepository itemRepository;
     private final UserRepository userRepository;
+    private final BillingSeeder billingSeeder;
     private final Clock clock;
     /** Fixed seed: every fresh database gets the same sample orders. */
     private final Random random = new Random(2026);
 
     public OrderSeeder(CustomerOrderRepository orderRepository, DiningTableRepository tableRepository,
-                       MenuItemRepository itemRepository, UserRepository userRepository, Clock clock) {
+                       MenuItemRepository itemRepository, UserRepository userRepository,
+                       BillingSeeder billingSeeder, Clock clock) {
         this.orderRepository = orderRepository;
         this.tableRepository = tableRepository;
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
+        this.billingSeeder = billingSeeder;
         this.clock = clock;
     }
 
@@ -63,7 +67,8 @@ public class OrderSeeder {
         List<DiningTable> tables = tableRepository.findByActiveTrueOrderByNumberAsc();
         List<MenuItem> menu = itemRepository.search(false, true);
         User waiter = userRepository.findByUsername("waiter").orElse(null);
-        if (orderRepository.count() > 0 || tables.isEmpty() || menu.isEmpty() || waiter == null) {
+        User manager = userRepository.findByUsername("manager").orElse(null);
+        if (orderRepository.count() > 0 || tables.isEmpty() || menu.isEmpty() || waiter == null || manager == null) {
             return;
         }
         List<MenuItem> drinks = menu.stream().filter(i -> "Drinks".equals(i.getCategory().getName())).toList();
@@ -72,6 +77,7 @@ public class OrderSeeder {
         List<MenuItem> mains = menu.stream().filter(i -> i.getCourse() == Course.MAIN).toList();
         List<MenuItem> desserts = menu.stream().filter(i -> i.getCourse() == Course.DESSERT).toList();
 
+        List<CustomerOrder> orders = new ArrayList<>();
         for (int i = 0; i < ORDERS; i++) {
             LocalDateTime opened = LocalDate.now(clock).minusDays(1 + i % 7)
                     .atTime(i % 2 == 0 ? 12 : 19, (i * 7) % 45);
@@ -106,11 +112,10 @@ public class OrderSeeder {
                 item.changeStatus(ItemStatus.IN_PROGRESS, "Guest found it too salty", last.plusMinutes(3));
                 item.changeStatus(ItemStatus.READY, null, last.plusMinutes(10));
             }
-            order.lock();
-            order.close();
-            orderRepository.save(order);
+            orders.add(orderRepository.save(order));
         }
-        log.info("Seeded {} past orders", ORDERS);
+        billingSeeder.settle(orders, waiter, manager);
+        log.info("Seeded {} past orders with their bills and shifts", ORDERS);
     }
 
     private OrderLine add(CustomerOrder order, MenuItem item) {
