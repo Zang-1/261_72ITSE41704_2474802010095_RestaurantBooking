@@ -1,4 +1,4 @@
-# Progress — Tang Thoai Lam (Order & Kitchen module)
+# Progress: Tang Thoai Lam (Order & Kitchen module)
 
 Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repository.
 

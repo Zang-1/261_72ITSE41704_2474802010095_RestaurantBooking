@@ -211,7 +211,7 @@ Full specifications are in Appendix A. The use-case diagram is `docs/diagrams/gi
 
 The Order & Kitchen requirements did not change. The interview confirmed FR-17 and BR-07 (out-of-stock news travels by mouth today) and kept BR-08, even though guests rarely change an order after cooking starts (F9, F10).
 
-## Chapter 3 — Order & Kitchen module sections
+## Chapter 3: Order & Kitchen module sections
 
 ### 3.1 Problem Description and System Objectives (module part)
 
@@ -327,10 +327,10 @@ Same as Giang's table. Lam's module adds no library.
 | Send to kitchen (FR-13, FR-14, BR-06, NFR-07) | order id; all unsent dishes, or only the earliest unsent course | One ticket in course order; refused as a whole if a dish ran out or an earlier course is left unsent | `POST /api/orders/{id}/send` | Order screen |
 | Move an order to another table (FR-19) | order id, new table, party size | Order on the new table, which becomes Occupied; the old table needs cleaning. Refused if the new table is not free, too small or booked soon (BR-01 to BR-03), or the order is locked | `POST /api/orders/{id}/move` | Order screen |
 | Cancel a sent dish (FR-18, BR-08) | order id, line id | Cancelled while New and removed from the total; refused once In Progress | `DELETE /api/orders/{id}/lines/{lineId}` | Order screen |
-| Kitchen display (FR-14, FR-15, UC-09) | — (polls every 2 s) | Tickets with a dish still New or In Progress, oldest first, dishes by course | `GET /api/kitchen/tickets` | Kitchen display |
+| Kitchen display (FR-14, FR-15, UC-09) | None (polls every 2 s) | Tickets with a dish still New or In Progress, oldest first, dishes by course | `GET /api/kitchen/tickets` | Kitchen display |
 | Change a dish's status (FR-15, UC-09) | item id; a reason when sent back | New → In Progress → Ready; Ready → In Progress with a reason. The waiter sees the status | `POST /api/kitchen/items/{id}/start`, `/ready`, `/send-back` | Kitchen display, order screen |
-| Finished tickets (UC-09 alternative 3a) | — (polls every 2 s) | Tickets with every dish done while the order is still open, so a dish can still be sent back | `GET /api/kitchen/tickets/finished` | Kitchen display |
-| Sample data (Week 8) | — | 29 dishes and 12 finished orders from the past week, created through the domain methods and billed by Khoa's `BillingSeeder` | `MenuSeeder`, `OrderSeeder` | — |
+| Finished tickets (UC-09 alternative 3a) | None (polls every 2 s) | Tickets with every dish done while the order is still open, so a dish can still be sent back | `GET /api/kitchen/tickets/finished` | Kitchen display |
+| Sample data (Week 8) | None | 29 dishes and 12 finished orders from the past week, created through the domain methods and billed by Khoa's `BillingSeeder` | `MenuSeeder`, `OrderSeeder` | None |
 
 **Implementation notes**
 - **Double click on Send (NFR-07).**
@@ -419,7 +419,7 @@ Same as Giang's table. Lam's module adds no library.
 
 ## Appendices B and C (Lam's rows)
 
-### Appendix B — Declaration of AI-tool use
+### Appendix B: Declaration of AI-tool use
 
 [Lam: check every row. The "How the output was verified" column must describe what you yourself did.]
 
@@ -437,7 +437,7 @@ Same as Giang's table. Lam's module adds no library.
 - Why `unit_price` is copied into `order_line` instead of read from the menu.
 - How the kitchen display meets NFR-02 with polling.
 
-### Appendix C — Individual contribution table
+### Appendix C: Individual contribution table
 
 | Member | Main responsibilities | Main artefacts produced | Commits | Share of work (%) | Signature |
 |---|---|---|---|---|---|
