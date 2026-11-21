@@ -1,6 +1,6 @@
 # Test cases: Order & Kitchen module (Tang Thoai Lam)
 
-Menu management (Week 5–6), order taking and kitchen tickets (Week 7–8). Columns follow Course Guidelines §6.3, same as
+Menu management (Week 5-6), order taking and kitchen tickets (Week 7-8). Columns follow Course Guidelines §6.3, same as
 `test-cases-table-reservation.md`.
 
 Every row is also an automated test (column **Automated test**) in `src/backend/src/test`, run with
