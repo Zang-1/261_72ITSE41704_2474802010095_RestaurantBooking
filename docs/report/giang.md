@@ -72,11 +72,11 @@ Build a web application with three staff roles that lets a small or medium-sized
 
 | # | Objective (Proposal §1.2) | Status |
 |---|---|---|
-| 1 | 15 use cases end-to-end for three roles | UC-01 to UC-06 (Table & Reservation) done. [Lam: UC-07 to UC-10] [Khoa: UC-11 to UC-15] |
-| 2 | 13 business rules in the service layer, each with at least one automated test | BR-01 to BR-05 done, each tested. [BR-06 to BR-08 Lam] [BR-09 to BR-13 Khoa] |
+| 1 | 15 use cases end-to-end for three roles | UC-01 to UC-06 (Table & Reservation) done. [Lam: UC-07 to UC-10] UC-11 to UC-15 (Billing & Reporting) done. |
+| 2 | 13 business rules in the service layer, each with at least one automated test | BR-01 to BR-05 done, each tested. [BR-06 to BR-08 Lam] BR-09 to BR-13 (Khoa) done, each with unit and API tests (`BillTest`, `BillControllerTest`, `ShiftControllerTest`). |
 | 3 | Zero overlapping reservations, also for two bookings at the same moment | Done: row lock and automated concurrent test (TC-RES-27) |
 | 4 | At least 30 documented test cases with expected and actual results | 31 for Table & Reservation (TC-RES-01 to TC-RES-31). [Order & Kitchen: TC-MENU, TC-ORD, TC-KIT — Lam to count] [Billing: …] |
-| 5 | Measurable NFRs, e.g. search under 2 s | NFR-01 met: with 50 tables and 500 reservations in a week the slowest search took 16 ms (TC-RES-30, H2 test database). [Lam: NFR-02, NFR-03] [Khoa: NFR-04] |
+| 5 | Measurable NFRs, e.g. search under 2 s | NFR-01 met: with 50 tables and 500 reservations in a week the slowest search took 16 ms (TC-RES-30, H2 test database). [Lam: NFR-02, NFR-03] NFR-04 met: a bill of 50 lines took 2 ms and a shift report of 300 bills 25 ms (TC-BIL-34, TC-SHF-10, H2 test database). |
 
 ### 1.3 Scope of the Study
 
@@ -91,7 +91,7 @@ The process was learned from the interview and from published work on restaurant
 - Walk-in waiting list.
 - Table lifecycle and floor overview.
 - Menu, orders, kitchen display, out-of-stock. [Lam: confirm]
-- Bills, splitting, payments, shifts and the shift report. [Khoa: confirm]
+- Bills, splitting (even and by item), payments (cash, card, bank transfer, e-wallet), shifts and the shift report with a cash check.
 
 **System scope: out.**
 - Online booking or ordering by guests.
@@ -287,7 +287,7 @@ A booking at 19:00 blocks the table until 22:15. A booking at 22:15 is accepted,
 | Floor overview updates by itself | Partly | The page reloads after each action, but not when another user changes a table. Polling or WebSocket would be the next step |
 | Reserved status right after "Mark clean" | Up to 1 minute late | Set by the next scheduler run (shortcut noted in `TableService.markClean`) |
 | Deposits, pre-ordering, online booking | Out of scope | Proposal §1.3; the restaurant asked for them (F2). Future work |
-| Table with an unpaid bill cannot be cleaned (UC-06 alt. 1a) | [Depends on Khoa] | Order status is checked now. Bill status is added when Billing is merged |
+| Table with an unpaid bill cannot be cleaned (UC-06 alt. 1a) | Done | A generated, unpaid bill keeps the order LOCKED, and "Guests left" refuses a table with a LOCKED order (TC-BIL-33) |
 
 #### 3.3.4 Other deliverables
 - REST API: the endpoints in Table 3.x.
@@ -354,7 +354,7 @@ A booking at 19:00 blocks the table until 22:15. A booking at 22:15 is accepted,
 | Login and three roles (FR-01) | Yes: session login, BCrypt, role checks on the server | — |
 | Table & Reservation, FR-02 to FR-10, UC-01 to UC-06, BR-01 to BR-05 | All FRs, all five rules, each with automated tests | UC-06 "highlight a fitting party" is replaced by a "Seat next waiting" button (see 3.3.3) |
 | Order & Kitchen, FR-11 to FR-20, BR-06 to BR-08 | [Lam] | [Lam] |
-| Billing & Reporting, FR-21 to FR-29, BR-09 to BR-13 | [Khoa] | [Khoa] |
+| Billing & Reporting, FR-21 to FR-29, BR-09 to BR-13 | FR-21 to FR-29, UC-11 to UC-15, BR-09 to BR-13, each rule with unit and API tests; bill and shifts screens; NFR-04 measured; sample bills and shifts | E-wallet added (CR-04); the shift report is calculated instead of stored; no refund function |
 | 30 documented test cases | 31 for Table & Reservation (TC-RES-01 to TC-RES-31), [+ Order & Kitchen + Billing] | — |
 | Release tags v0.1, v0.2, v1.0 | [dates] | — |
 
@@ -362,7 +362,7 @@ A booking at 19:00 blocks the table until 22:15. A booking at 22:15 is accepted,
 - A working web application: Spring Boot, React and MySQL, with a demo profile that needs no MySQL.
 - The interview changed two of our rules (CR-01, CR-02) and three of Khoa's (CR-03 to CR-05). The code follows the restaurant's real timings.
 - Double booking is prevented even when two staff book at the same second. This is proven by an automated test.
-- [Lam: kitchen display, course order …] [Khoa: split bill, shift report …]
+- [Lam: kitchen display, course order …] Khoa: shares that always add up (BR-10), and payments that close the bill and free the table in one transaction.
 
 **Limitations and future work**
 - **Security on the internet:** rate-limit the login, use HTTPS, and require new passwords instead of the README demo passwords.
