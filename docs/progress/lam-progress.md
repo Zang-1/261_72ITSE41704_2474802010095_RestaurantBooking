@@ -60,3 +60,8 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 - Kitchen display: finished tickets stay reachable while the order is open, so a dish can be sent back (TC-KIT-14).
 - Take-order sequence diagram redrawn from the code; README and report updated.
 - Results: `mvn test` 125 tests, 0 failures (71 for Order & Kitchen).
+
+## Week 10 work (21/11/2026)
+
+- Report updated after the Billing merge (PR #23): sample orders are now billed; BR-09 is checked in `Bill.generate`.
+- Results: `mvn test` 176 tests, 0 failures (71 for Order & Kitchen).

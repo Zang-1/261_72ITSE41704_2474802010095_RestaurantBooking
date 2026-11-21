@@ -330,7 +330,7 @@ Same as Giang's table. Lam's module adds no library.
 | Kitchen display (FR-14, FR-15, UC-09) | — (polls every 2 s) | Tickets with a dish still New or In Progress, oldest first, dishes by course | `GET /api/kitchen/tickets` | Kitchen display |
 | Change a dish's status (FR-15, UC-09) | item id; a reason when sent back | New → In Progress → Ready; Ready → In Progress with a reason. The waiter sees the status | `POST /api/kitchen/items/{id}/start`, `/ready`, `/send-back` | Kitchen display, order screen |
 | Finished tickets (UC-09 alternative 3a) | — (polls every 2 s) | Tickets with every dish done while the order is still open, so a dish can still be sent back | `GET /api/kitchen/tickets/finished` | Kitchen display |
-| Sample data (Week 8) | — | 29 dishes and 12 finished orders from the past week, created through the domain methods | `MenuSeeder`, `OrderSeeder` | — |
+| Sample data (Week 8) | — | 29 dishes and 12 finished orders from the past week, created through the domain methods and billed by Khoa's `BillingSeeder` | `MenuSeeder`, `OrderSeeder` | — |
 
 **Implementation notes**
 - **Double click on Send (NFR-07).**
@@ -340,8 +340,7 @@ Same as Giang's table. Lam's module adds no library.
 - **Cook and waiter at the same moment (BR-08).** A waiter cancelling a dish and a cook starting it both save the same ticket item. The `version` column lets only the first save win. The second user gets 409 "Someone else changed this dish a moment ago".
 - **Link to the other modules.**
   - Opening an order checks Giang's table status (Occupied). The order module never changes a table's status itself.
-  - `CustomerOrder.hasKitchenWorkPending()` is there for Khoa's BR-09 check before a bill is generated.
-  - `lock()` marks the order when the bill is generated.
+  - Khoa's `Bill.generate` refuses a bill while a dish is New or In Progress (BR-09), then calls `lock()`. Cancelling the unpaid bill calls `unlock()`, and paying it calls `close()`.
 - **Errors.** Every refusal is a `BusinessRuleException` (409) or a field error (400) with a message the waiter can act on, for example "Send the Starter dishes before the Main dishes (BR-06)".
 
 #### 3.3.3 Unimplemented or incomplete functions
@@ -369,8 +368,8 @@ Same as Giang's table. Lam's module adds no library.
   - A test that the sample data follows the rules: `OrderSeederTest`.
   - The screens were walked through in the browser with the H2 profile: open an order, add dishes, change a quantity and a note, send, then Start and Ready on the kitchen display.
 - **Test cases.** TC-MENU-01 to 09, TC-ORD-01 to 18 and TC-KIT-01 to 14 (41 cases) in `tests/test-cases-order-kitchen.md`, Appendix [x].
-- **Results** on 09/11/2026:
-  - `mvn test`: 125 automated tests, 0 failures. 71 of them are for Order & Kitchen. Run with all Order & Kitchen pull requests merged (#13, #14, #17, #19) and FR-19. [Update when Billing is merged.]
+- **Results** on 21/11/2026:
+  - `mvn test`: 176 automated tests, 0 failures. 71 of them are for Order & Kitchen. Run on `main` with all three modules merged (Billing in PR #23).
   - All 41 documented cases pass.
 
 #### 3.4.2 System evaluation
@@ -426,7 +425,7 @@ Same as Giang's table. Lam's module adds no library.
 
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5–8) | The automated tests were run on Lam's machine (125 passing on 09/11/2026, 71 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests |
+| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5–8) | The automated tests were run on Lam's machine (176 passing on 21/11/2026, 71 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests |
 | Claude (Anthropic), via Claude Code | Writing the automated tests and the documented test cases TC-MENU, TC-ORD and TC-KIT | `src/backend/src/test`, `tests/test-cases-order-kitchen.md` | [Lam: e.g. compared each expected result with its requirement and business rule; checked the "actual" column against the test output] |
 | Claude (Anthropic), via Claude Code | Translating Lam's Vietnamese requirement draft; drafting the wireframes, the deployment diagram, the progress notes and this report's Chapter 2, Chapter 3 (Order & Kitchen part) and Lam's rows | `docs/requirements/`, `docs/diagrams/lam/`, `docs/progress/lam-progress.md`, `docs/report/lam.md` | [Lam: e.g. compared Chapter 2 with the interview notes and the requirement changes; checked each statement of Chapter 3 against the code] |
 
