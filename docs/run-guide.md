@@ -1,7 +1,8 @@
 # Run guide
 
 How to install, start and try the Restaurant Table Booking and Kitchen Order System, from a fresh clone.
-The short version is in the README ("How to Build and Run"); this guide adds checks and a walkthrough of a whole visit.
+The short version is in the README ("Run the project"). On Windows, double-clicking `start.bat` builds and starts everything on http://localhost:8080.
+This guide adds checks and a walkthrough of a whole visit.
 
 ## 1. Install
 
