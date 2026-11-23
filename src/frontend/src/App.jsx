@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import { RequireRole, homePath, useAuth } from './auth.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import GuestPage from './pages/GuestPage.jsx';
 import FloorPage from './pages/FloorPage.jsx';
 import ReservationsPage from './pages/ReservationsPage.jsx';
 import WaitlistPage from './pages/WaitlistPage.jsx';
@@ -19,6 +20,7 @@ export default function App() {
 
   return (
     <Routes>
+      <Route path="/" element={<GuestPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route element={<Layout />}>
         <Route path="/floor" element={<RequireRole roles={FRONT_OF_HOUSE}><FloorPage /></RequireRole>} />

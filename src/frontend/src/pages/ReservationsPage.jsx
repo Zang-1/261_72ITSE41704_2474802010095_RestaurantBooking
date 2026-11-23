@@ -1,11 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { useT } from '../prefs.jsx';
+import { useDialog } from '../components/Dialog.jsx';
 import { FormError } from '../components/FormField.jsx';
+import Icon from '../components/Icon.jsx';
 import ReservationForm from '../components/ReservationForm.jsx';
+import { Badge, Empty, Notice, PageHeader } from '../components/ui.jsx';
 import { RESERVATION_STATUS_LABELS, timeOf, todayIso } from '../format.js';
 
-/** UC-03 Create reservation and UC-04 Modify or cancel a reservation. */
+/** UC-03 Create reservation and UC-04 Modify, cancel or check in a reservation. */
 export default function ReservationsPage() {
+  const t = useT();
+  const ask = useDialog();
   const [date, setDate] = useState(todayIso());
   const [reservations, setReservations] = useState([]);
   const [error, setError] = useState(null);
@@ -20,10 +26,17 @@ export default function ReservationsPage() {
   useEffect(load, [load]);
 
   async function handleCancel(reservation) {
-    if (!window.confirm(`Cancel reservation ${reservation.code} for ${reservation.guestName}?`)) return;
+    const yes = await ask({
+      title: t('Cancel reservation {code}?', { code: reservation.code }),
+      message: t('{name}, {n} guests at {time}. The table is released.', { name: reservation.guestName, n: reservation.partySize, time: timeOf(reservation.startTime) }),
+      confirmLabel: t('Cancel reservation'),
+      danger: true,
+    });
+    if (!yes) return;
+    setMessage('');
     try {
       await api.post(`/reservations/${reservation.id}/cancel`);
-      setMessage(`Reservation ${reservation.code} was cancelled.`);
+      setMessage(t('Reservation {code} was cancelled.', { code: reservation.code }));
       load();
     } catch (err) {
       setError(err);
@@ -31,9 +44,10 @@ export default function ReservationsPage() {
   }
 
   async function handleCheckIn(reservation) {
+    setMessage('');
     try {
       const saved = await api.post(`/reservations/${reservation.id}/check-in`);
-      setMessage(`${saved.guestName} checked in at table ${saved.tableNumber}.`);
+      setMessage(t('{name} checked in at table {n}.', { name: saved.guestName, n: saved.tableNumber }));
       load();
     } catch (err) {
       setError(err);
@@ -43,20 +57,23 @@ export default function ReservationsPage() {
   function handleSaved(saved, isNew) {
     setEditing(null);
     setMessage(isNew
-      ? `Reservation ${saved.code} confirmed for ${saved.guestName}, table ${saved.tableNumber}.`
-      : `Reservation ${saved.code} was updated.`);
+      ? t('Reservation {code} confirmed for {name}, table {n}.', { code: saved.code, name: saved.guestName, n: saved.tableNumber })
+      : t('Reservation {code} was updated.', { code: saved.code }));
     setDate(saved.startTime.slice(0, 10));
     load();
   }
 
+  const active = reservations.filter((r) => r.status === 'CONFIRMED');
+  const guests = active.reduce((sum, r) => sum + r.partySize, 0);
+
   return (
     <>
-      <div className="page-head">
-        <h1>Reservations</h1>
-        <button type="button" className="primary" onClick={() => { setMessage(''); setEditing({}); }}>
-          New reservation
+      <PageHeader title={t('Reservations')}
+        subtitle={t('Book a table in three steps. Guests can check in from 30 minutes before their time.')}>
+        <button type="button" className="btn btn-primary" onClick={() => { setMessage(''); setEditing({}); }}>
+          <Icon name="plus" size={16} />{t('New reservation')}
         </button>
-      </div>
+      </PageHeader>
 
       {editing && (
         <ReservationForm
@@ -66,47 +83,53 @@ export default function ReservationsPage() {
         />
       )}
 
-      {message && <p className="notice">{message}</p>}
+      <Notice>{message}</Notice>
       <FormError error={error} />
 
-      <label className="inline-field">
-        Date <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
-      </label>
+      <div className="toolbar">
+        <label className="inline-field">
+          <Icon name="calendar" size={16} />{t('Date')}
+          <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+        </label>
+        <span className="muted">{t('{n} confirmed, {g} guests expected', { n: active.length, g: guests })}</span>
+      </div>
 
       {reservations.length === 0 ? (
-        <p className="muted">No reservations on this date.</p>
+        <Empty icon="calendar" title={t('No reservations on this date')}>{t('Pick another date or add a new reservation.')}</Empty>
       ) : (
-        <table className="data">
-          <thead>
-            <tr>
-              <th>Time</th><th>Code</th><th>Table</th><th>Guest</th><th>Phone</th>
-              <th>Party</th><th>Note</th><th>Status</th><th />
-            </tr>
-          </thead>
-          <tbody>
-            {reservations.map((r) => (
-              <tr key={r.id} className={r.status === 'CANCELLED' ? 'dimmed' : ''}>
-                <td>{timeOf(r.startTime)}</td>
-                <td><code>{r.code}</code></td>
-                <td>{r.tableNumber}</td>
-                <td>{r.guestName}</td>
-                <td>{r.phone}</td>
-                <td>{r.partySize}</td>
-                <td>{r.note}</td>
-                <td>{RESERVATION_STATUS_LABELS[r.status]}</td>
-                <td className="actions">
-                  {r.status === 'CONFIRMED' && (
-                    <>
-                      <button type="button" className="primary" onClick={() => { setMessage(''); handleCheckIn(r); }}>Check in</button>
-                      <button type="button" onClick={() => { setMessage(''); setEditing(r); }}>Edit</button>
-                      <button type="button" className="danger" onClick={() => handleCancel(r)}>Cancel</button>
-                    </>
-                  )}
-                </td>
+        <div className="table-wrap">
+          <table className="data">
+            <thead>
+              <tr>
+                <th>{t('Time')}</th><th>{t('Guest')}</th><th>{t('Table')}</th><th className="num">{t('Party')}</th>
+                <th>{t('Note')}</th><th>{t('Status')}</th><th><span className="sr-only">{t('Actions')}</span></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {reservations.map((r) => (
+                <tr key={r.id} className={r.status === 'CONFIRMED' || r.status === 'CHECKED_IN' ? '' : 'dimmed'}>
+                  <td><strong>{timeOf(r.startTime)}</strong><span className="cell-sub"><code>{r.code}</code></span></td>
+                  <td>{r.guestName}<span className="cell-sub">{r.phone}</span></td>
+                  <td>{t('Table {n}', { n: r.tableNumber })}</td>
+                  <td className="num">{r.partySize}</td>
+                  <td>{r.note}</td>
+                  <td><Badge tone={r.status}>{t(RESERVATION_STATUS_LABELS[r.status])}</Badge></td>
+                  <td className="actions">
+                    {r.status === 'CONFIRMED' && (
+                      <div>
+                        <button type="button" className="btn btn-sm btn-primary" onClick={() => handleCheckIn(r)}>{t('Check in')}</button>
+                        <button type="button" className="btn btn-sm" onClick={() => { setMessage(''); setEditing(r); }}>
+                          <Icon name="edit" size={14} />{t('Edit')}
+                        </button>
+                        <button type="button" className="btn btn-sm btn-danger" onClick={() => handleCancel(r)}>{t('Cancel')}</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </>
   );
