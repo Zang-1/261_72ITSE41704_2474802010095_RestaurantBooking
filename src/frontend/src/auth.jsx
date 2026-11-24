@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { api, setUnauthorizedHandler } from './api.js';
+import { useT } from './prefs.jsx';
 
 const AuthContext = createContext(null);
 
@@ -47,7 +48,8 @@ export function homePath(role) {
 /** Shows the page only to the given roles. The server checks the role again on every request. */
 export function RequireRole({ roles, children }) {
   const { user, checking } = useAuth();
-  if (checking) return <p className="muted page">Loading…</p>;
+  const t = useT();
+  if (checking) return <p className="muted">{t('Loading…')}</p>;
   if (!user) return <Navigate to="/login" replace />;
   if (!roles.includes(user.role)) return <Navigate to={homePath(user.role)} replace />;
   return children;

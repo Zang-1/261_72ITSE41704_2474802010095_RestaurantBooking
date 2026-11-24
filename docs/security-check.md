@@ -40,7 +40,7 @@ Screenshot: `docs/screenshots/giang/03-check-in-too-early.jpg`.
 | # | Check | Status | Where |
 |---|---|---|---|
 | 1 | Passwords are stored as BCrypt hashes, never in plain text | Done | `SecurityConfig.passwordEncoder`, `DataSeeder` |
-| 2 | Every `/api` endpoint except login needs a session | Done | `SecurityConfig.securityFilterChain` |
+| 2 | Every `/api` endpoint except login and the guest website (`/api/public/**`: menu, free times, online booking) needs a session | Done | `SecurityConfig.securityFilterChain` |
 | 3 | Roles are checked on the server, not only hidden in the UI | Done | `@PreAuthorize` on every controller method (`AccessRules`); TC-RES-25: Kitchen Staff gets 403 on check-in |
 | 4 | A new session id is issued at login (session fixation) | Done | `AuthController.login` → `request.changeSessionId()` |
 | 5 | CSRF | Done, by cookie policy | Session cookie is `SameSite=Strict`, so other sites cannot send it. CSRF tokens are therefore off. |
@@ -52,7 +52,7 @@ Screenshot: `docs/screenshots/giang/03-check-in-too-early.jpg`.
 | 11 | Two staff booking the same table at the same moment (NFR-06) | Done | `DiningTableRepository.findByIdForUpdate` (SELECT … FOR UPDATE); TC-RES-27 |
 
 ### Known limitations (to report honestly in Section 3.4.2)
-- **No rate limiting on login.** A password-guessing script is not slowed down.
+- **No rate limiting on login or on the public booking API.** A password-guessing script is not slowed down, and a script could fill the tables with fake online bookings (`/api/public/reservations` needs no login). Acceptable for a local demo; a real site needs rate limiting or a CAPTCHA.
   - Acceptable for a restaurant LAN.
   - Would be needed on the internet.
 - **Demo passwords are printed in the README.**

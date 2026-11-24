@@ -3,9 +3,6 @@ target/
 *.class
 *.jar
 *.war
-.mvn/
-mvnw
-mvnw.cmd
 application-local.properties
 application-local.yml
 

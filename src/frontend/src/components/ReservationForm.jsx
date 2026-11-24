@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api.js';
+import { useT } from '../prefs.jsx';
 import FormField, { FormError } from './FormField.jsx';
+import Icon from './Icon.jsx';
 import { timeOf, todayIso } from '../format.js';
 
 /**
@@ -8,6 +10,7 @@ import { timeOf, todayIso } from '../format.js';
  * Used for both a new reservation and editing an existing one.
  */
 export default function ReservationForm({ reservation, onSaved, onClose }) {
+  const t = useT();
   const isNew = !reservation;
   const [form, setForm] = useState(() => ({
     date: reservation ? reservation.startTime.slice(0, 10) : todayIso(),
@@ -31,7 +34,7 @@ export default function ReservationForm({ reservation, onSaved, onClose }) {
       const params = new URLSearchParams({ date: form.date, startTime: form.startTime, partySize: form.partySize });
       const found = await api.get(`/reservations/available-tables?${params}`);
       setTables(found);
-      if (!found.some((t) => t.id === form.tableId)) {
+      if (!found.some((table) => table.id === form.tableId)) {
         setForm((f) => ({ ...f, tableId: found[0]?.id ?? null }));
       }
     } catch (err) {
@@ -72,62 +75,83 @@ export default function ReservationForm({ reservation, onSaved, onClose }) {
 
   return (
     <form className="card" onSubmit={handleSubmit} noValidate>
-      <div className="page-head">
-        <h2>{isNew ? 'New reservation' : `Edit reservation ${reservation.code}`}</h2>
-        <button type="button" className="link" onClick={onClose}>Close</button>
+      <div className="card-head">
+        <h2>{isNew ? t('New reservation') : t('Edit reservation {code}', { code: reservation.code })}</h2>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={onClose}><Icon name="x" size={16} />{t('Close')}</button>
       </div>
 
-      <h3>1. When and how many</h3>
-      <div className="row">
-        <FormField label="Date" error={fieldErrors.date}>
-          <input type="date" value={form.date} onChange={update('date')} />
-        </FormField>
-        <FormField label="Start time" error={fieldErrors.startTime}>
-          <input type="time" value={form.startTime} onChange={update('startTime')} />
-        </FormField>
-        <FormField label="Party size" error={fieldErrors.partySize}>
-          <input type="number" min="1" max="20" value={form.partySize} onChange={update('partySize')} />
-        </FormField>
-        <button type="button" onClick={search}>Find tables</button>
-      </div>
-
-      {tables && (
-        <>
-          <h3>2. Table</h3>
-          {tables.length === 0 ? (
-            <p className="muted">No table available for this time. Try another time or use the waiting list.</p>
-          ) : (
-            <div className="choice-list">
-              {tables.map((t) => (
-                <label key={t.id} className={`choice${form.tableId === t.id ? ' selected' : ''}`}>
-                  <input type="radio" name="table" checked={form.tableId === t.id}
-                         onChange={() => setForm((f) => ({ ...f, tableId: t.id }))} />
-                  Table {t.number} · {t.capacity} seats · {t.sectionName}
-                </label>
-              ))}
+      <div className="steps">
+        <div className="step">
+          <span className="step-no">1</span>
+          <div className="step-body">
+            <h3>{t('When and how many')}</h3>
+            <div className="form-row">
+              <FormField label={t('Date')} error={fieldErrors.date}>
+                <input type="date" value={form.date} onChange={update('date')} />
+              </FormField>
+              <FormField label={t('Start time')} error={fieldErrors.startTime}>
+                <input type="time" value={form.startTime} onChange={update('startTime')} />
+              </FormField>
+              <FormField label={t('Party size')} error={fieldErrors.partySize}>
+                <input type="number" min="1" max="20" value={form.partySize} onChange={update('partySize')} />
+              </FormField>
+              <button type="button" className="btn" onClick={search}><Icon name="search" size={16} />{t('Find tables')}</button>
             </div>
-          )}
-          {fieldErrors.tableId && <small className="error-text">{fieldErrors.tableId}</small>}
-
-          <h3>3. Guest</h3>
-          <div className="row">
-            <FormField label="Guest name" error={fieldErrors.guestName}>
-              <input value={form.guestName} onChange={update('guestName')} maxLength={100} />
-            </FormField>
-            <FormField label="Phone" error={fieldErrors.phone}>
-              <input value={form.phone} onChange={update('phone')} placeholder="0901234567" maxLength={15} />
-            </FormField>
           </div>
-          <FormField label="Note (optional)" error={fieldErrors.note}>
-            <input value={form.note} onChange={update('note')} maxLength={200} />
-          </FormField>
-        </>
-      )}
+        </div>
+
+        {tables && (
+          <>
+            <div className="step">
+              <span className="step-no">2</span>
+              <div className="step-body">
+                <h3>{t('Table')}</h3>
+                {tables.length === 0 ? (
+                  <p className="muted">{t('No table is free at this time. Try another time or add the party to the waiting list.')}</p>
+                ) : (
+                  <div className="choice-grid">
+                    {tables.map((table) => (
+                      <label key={table.id} className={`choice${form.tableId === table.id ? ' selected' : ''}`}>
+                        <input type="radio" name="table" checked={form.tableId === table.id}
+                          onChange={() => setForm((f) => ({ ...f, tableId: table.id }))} />
+                        <span className="choice-text">
+                          <strong>{t('Table {n}', { n: table.number })}</strong>
+                          <span>{t('{n} seats', { n: table.capacity })} · {table.sectionName}</span>
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+                {fieldErrors.tableId && <small className="error-text">{t(fieldErrors.tableId)}</small>}
+              </div>
+            </div>
+
+            <div className="step">
+              <span className="step-no">3</span>
+              <div className="step-body">
+                <h3>{t('Guest')}</h3>
+                <div className="form-row">
+                  <FormField label={t('Guest name')} error={fieldErrors.guestName}>
+                    <input value={form.guestName} onChange={update('guestName')} maxLength={100} />
+                  </FormField>
+                  <FormField label={t('Phone')} error={fieldErrors.phone}>
+                    <input value={form.phone} onChange={update('phone')} placeholder="0901234567" maxLength={15} />
+                  </FormField>
+                </div>
+                <FormField label={t('Note (optional)')} error={fieldErrors.note}>
+                  <input value={form.note} onChange={update('note')} maxLength={200} placeholder={t('e.g. birthday, window seat')} />
+                </FormField>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
 
       <FormError error={error} />
       {tables && tables.length > 0 && (
-        <button type="submit" className="primary" disabled={saving || !form.tableId}>
-          {saving ? 'Saving…' : isNew ? 'Confirm reservation' : 'Save changes'}
+        <button type="submit" className="btn btn-primary" disabled={saving || !form.tableId}>
+          <Icon name="check" size={16} />
+          {saving ? t('Saving…') : isNew ? t('Confirm reservation') : t('Save changes')}
         </button>
       )}
     </form>
