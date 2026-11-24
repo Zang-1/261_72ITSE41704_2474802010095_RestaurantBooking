@@ -142,7 +142,7 @@ Created on the first start (`DataSeeder`). These are demo accounts: change the p
 
 **Sample data (also seeded):**
 - 4 sections and 27 tables: Hearth Hall, Duo Lounge, Cellar Room and Sky Terrace.
-- 29 dishes.
+- 30 dishes.
 - 12 past orders with their bills and shifts, so the shift reports have data. Turn these off with `app.seed.sample-orders=false`.
 
 The Manager opens a shift in **Shifts** before the first bill of the day. `docs/run-guide.md` walks through one whole visit, from seating the guests to the shift report.
