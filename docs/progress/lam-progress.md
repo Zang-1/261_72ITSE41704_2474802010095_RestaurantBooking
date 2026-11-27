@@ -41,7 +41,7 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 
 - Order screen `/order/:tableId`, opened from an Occupied table on the floor overview.
 - Kitchen display `/kitchen`: open tickets oldest first, polling every 2 s (NFR-02), with a sold-out panel (UC-10).
-- Sample data: 29 menu items and 12 finished orders from the past week (`OrderSeeder`), checked by `OrderSeederTest`.
+- Sample data: 30 menu items and 12 finished orders from the past week (`OrderSeeder`), checked by `OrderSeederTest`.
 - Results: `mvn test` 119 tests, 0 failures (65 for Order & Kitchen), on `main` after PR #19, 5/11/2026.
 
 ## Still open
@@ -65,3 +65,4 @@ Plan: Proposal Table 2.10. Evidence: commits and pull requests in this repositor
 
 - Report updated after the Billing merge (PR #23): sample orders are now billed; BR-09 is checked in `Bill.generate`.
 - Results: `mvn test` 176 tests, 0 failures (71 for Order & Kitchen).
+- Screenshots in `docs/screenshots/lam/` retaken with the new interface (PR #26); `mvn test` 182 tests, 0 failures (71 for Order & Kitchen), 24/11/2026.
