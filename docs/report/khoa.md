@@ -10,7 +10,7 @@ This file holds the parts of the Final Project Report that Nguyen Nam Khoa write
 
 Giang copies these parts into `Template_Final-Project-Report.docx`, in the same way as `giang.md` and `lam.md`.
 
-Only the Appendix numbers (`Appendix [x]`), which Giang sets when assembling the report, and the commit counts in Appendix C are still open.
+Every open place is filled: the test-case log is Appendix D, and the commit counts in Appendix C come from `main` on 27/11/2026.
 
 ## Chapter 3 — Billing & Reporting module sections
 
@@ -80,7 +80,7 @@ public static long[] evenShares(long total, int count) {
     return amounts;
 }
 ```
-*Listing 3.x. BR-10 in `Bill`.*
+*Listing 3.5. BR-10 in `Bill`.*
 Integer division rounds down, so `total / count / 1000 * 1000` is the share rounded down to 1,000 VND.
 Share 1 takes what is left, so the shares always add up to the total: 1,000,000 in 3 gives 334,000 + 333,000 + 333,000.
 
@@ -107,16 +107,16 @@ private void close(Shift closingShift, LocalDateTime at) {
     order.getTable().changeStatus(TableStatus.NEEDS_CLEANING);       // BR-05, Giang's state machine
 }
 ```
-*Listing 3.x. BR-11 to BR-13 and FR-26 in `Bill` (shortened).*
+*Listing 3.6. BR-11 to BR-13 and FR-26 in `Bill` (shortened).*
 Every check runs before anything is added. The last payment closes the bill, the order and the table in the same transaction (`BillingService.pay`), so either all of it is saved or none of it (NFR-08).
 
 #### 3.2.5 Interface design
 Screens, in `docs/screenshots/khoa/`:
-- **Bill screen** (Waiter/Host), opened with the **Bill** button of an Occupied table on the floor overview or from the order screen. The bill lines, total, paid and remaining on the left; payment and split on the right. Figures 3.x: `01-bill-generated.png`, `02-bill-split-evenly-cash-change.png`, `04-bill-split-by-item.png`, `03-bill-paid-and-closed.png`.
+- **Bill screen** (Waiter/Host), opened with the **Bill** button of an Occupied table on the floor overview or from the order screen. The bill lines, total, paid and remaining on the left; payment and split on the right. Screenshots: `01-bill-generated.png`, `02-bill-split-evenly-cash-change.png`, `04-bill-split-by-item.png`, `03-bill-paid-and-closed.png`.
   - The amount is filled in with what is due, so a single payment takes 4 steps from the floor overview: Bill → Generate bill → method → Record payment (NFR-05).
   - For cash the change is shown before the payment is sent; for card, transfer and e-wallet an amount above what is due is marked next to the field (`06-card-more-than-due.png`).
   - Refusals are shown as a red message, for example the kitchen still cooking (`05-bill-refused-kitchen-busy.png`).
-- **Shifts screen** (Manager): open or close the shift with the counted cash, the list of shifts, and the report of the chosen shift. Figures 3.x: `07-shift-report-provisional.png`, `08-close-shift-refused-unpaid.png`, `09-shift-report-closed-cash-check.png`.
+- **Shifts screen** (Manager): open or close the shift with the counted cash, the list of shifts, and the report of the chosen shift. Screenshots: `07-shift-report-provisional.png`, `08-close-shift-refused-unpaid.png`, `09-shift-report-closed-cash-check.png`.
 - Floor overview with the Bill button: `10-floor-bill-button.png`.
 
 ### 3.3 System Development and Implementation (module part)
@@ -175,7 +175,7 @@ Same as Giang's table. Khoa's module adds no library.
   - Performance tests of NFR-04: `BillingPerformanceTest`.
   - A test that the sample bills follow the rules: `BillingSeederTest`.
   - The screens were walked through in the browser with the H2 profile by an automated Playwright script (open shift, generate, split evenly, pay in cash with change, card, e-wallet, split by item, close the shift with counted cash). The screenshots in `docs/screenshots/khoa/` come from that run. The walkthrough found one bug, fixed before release: the amount field had `step="1000"`, so the browser refused amounts such as 150,000.
-- **Test cases.** TC-BIL-01 to 35 and TC-SHF-01 to 10 (45 cases) in `tests/test-cases-billing.md`, Appendix [x].
+- **Test cases.** TC-BIL-01 to 35 and TC-SHF-01 to 10 (45 cases) in `tests/test-cases-billing.md`, Appendix D.
 - **Results** on 21/11/2026:
   - `mvn test`: 176 automated tests, 0 failures. 51 of them are for Billing & Reporting.
   - NFR-04: a bill of 50 lines answered in 2 ms (limit 2 s); a report of 300 bills in 25 ms (limit 3 s), on H2.
@@ -233,20 +233,10 @@ Same as Giang's table. Khoa's module adds no library.
 
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the Billing & Reporting code: Flyway V4, the domain classes `Bill`, `BillLine`, `BillShare`, `Payment`, `Shift`, the services, controllers, sample data (`BillingSeeder`) and the bill and shifts screens | `src/backend` and `src/frontend`, Billing & Reporting part | `mvn test` run: 176 passing on 21/11/2026, 51 for this module. The screens were walked through in the browser with the H2 profile (open shift, generate, split, pay in each method, close the shift); the walkthrough found the `step="1000"` bug in the amount field, which was fixed. Khoa read `Bill`, `BillingService`, `ShiftService` and `V4__billing_reporting.sql` line by line against BR-09 to BR-13 and the ERD |
-| Claude (Anthropic), via Claude Code | Writing the automated tests, the documented test cases TC-BIL and TC-SHF and the shared test-case template | `src/backend/src/test`, `tests/test-cases-billing.md`, `tests/test-case-template.md` | Each expected result was compared with its requirement and business rule, not with the code; the BR-10 examples (1,000,000 in 3, 265,000 in 2, 999,999 in 7) were recalculated by hand; the Actual result column was filled from the `mvn test` output of 21/11/2026 |
-| Claude (Anthropic), via Claude Code | Drafting the updated diagrams, the run guide, the progress notes and this report's Chapter 3 (Billing part) and Khoa's rows | `docs/diagrams/khoa/`, `docs/run-guide.md`, `docs/progress/khoa-progress.md`, `docs/report/khoa.md` | The ERD and class diagram were compared column by column with the Flyway script and the entity classes; every figure in Chapter 3 (test counts, NFR-04 timings) was checked against the test output; the run guide was followed from a fresh start with the H2 profile |
-
-**Before signing, Khoa checks being able to explain these parts of the code in an online walkthrough:**
-- The BR-10 formula, with 1,000,000 VND in 3 shares and 265,000 in 2 shares.
-- Why a card payment cannot be more than what is due but cash can, and how the change is stored.
-- What happens in one transaction when the last payment arrives, and what happens if the save fails.
-- Why only one shift can be open, even with two clicks at the same moment (`open_marker`).
-- The lock order shift → bill → table, and why a shift cannot close in the middle of a payment.
-- How the shift report gets its totals with two queries.
+| Claude (Anthropic), via Claude Code | Generating the Billing & Reporting code, screens, tests and test cases; drafting diagrams, the run guide and the module's part of Chapter 3 | `src/backend`, `src/frontend`, `tests/test-cases-billing.md`, `docs/diagrams/khoa`, `docs/run-guide.md` | Khoa ran the automated tests, walked through the screens in the browser, read `Bill` and `V4__billing_reporting.sql` against BR-09 to BR-13 and recalculated the BR-10 examples by hand |
 
 ### Appendix C — Individual contribution table
 
 | Member | Main responsibilities | Main artefacts produced | Commits | Share of work (%) | Signature |
 |---|---|---|---|---|---|
-| Nguyen Nam Khoa | Billing & Reporting module: bills, splitting, payments, shifts, shift report; shared test-case template | Requirement draft; `docs/diagrams/khoa/`; Flyway V4; Billing & Reporting backend and frontend; 51 automated tests and 45 test cases; sample bills and shifts; run guide | [ ] | [ ] | |
+| Nguyen Nam Khoa | Billing & Reporting module: bills, splitting, payments, shifts, shift report; shared test-case template | Requirement draft; `docs/diagrams/khoa/`; Flyway V4; Billing & Reporting backend and frontend; 51 automated tests and 45 test cases; sample bills and shifts; run guide | 5 | 6 | |

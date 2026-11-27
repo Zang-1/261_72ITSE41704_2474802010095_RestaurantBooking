@@ -16,7 +16,7 @@ When Lam's and Khoa's parts are ready, Giang copies all parts into `Template_Fin
 - builds the table of contents and the lists of figures and tables;
 - exports the DOCX and the PDF.
 
-Every open place is filled. Only the share of work in Appendix C waits for the team to agree.
+Every open place is filled. The share of work in Appendix C follows the commits on `main` (GitHub Contributors), merge commits excluded.
 
 ## Front matter (for the cover and declaration)
 
@@ -68,7 +68,7 @@ Build a web application with three staff roles that lets a small or medium-sized
 - orders and kitchen preparation;
 - billing.
 
-**Specific objectives, with status on 03/11/2026:**
+**Specific objectives, with status on 27/11/2026:**
 
 | # | Objective (Proposal §1.2) | Status |
 |---|---|---|
@@ -139,9 +139,10 @@ The process was learned from the interview and from published work on restaurant
 - **Chapter 3** describes the analysis, design, implementation and testing of each module.
 - **Chapter 4** compares the result with the Proposal and lists what each member learned.
 - **The appendices** hold:
-  - the full test-case log;
+  - the use case specifications (Appendix A);
   - the AI-use declaration (Appendix B);
-  - the contribution table (Appendix C).
+  - the contribution table (Appendix C);
+  - the full test-case log (Appendix D).
 
 ## Chapter 3 — Table & Reservation module sections
 
@@ -165,7 +166,7 @@ Today the answers come from a chat history and memory. Tables are promised twice
 ### 3.2 System Analysis and Design (module part)
 
 #### 3.2.1 Functional analysis
-- Use cases UC-01 to UC-06; see the use-case diagram, Figure 3.x (`docs/diagrams/giang/01-use-case.png`).
+- Use cases UC-01 to UC-06; see the use-case diagram, `docs/diagrams/giang/01-use-case.png`.
 - Functional decomposition: `docs/diagrams/giang/09-functional-decomposition.png`.
 
 #### 3.2.2 Data flow
@@ -209,7 +210,7 @@ public void changeStatus(TableStatus target) {
     status = target;
 }
 ```
-*Listing 3.x. BR-05 in `DiningTable`.*
+*Listing 3.1. BR-05 in `DiningTable`.*
 The `switch` over the enum makes the compiler check that every status is handled.
 The message tells staff exactly which step was refused.
 
@@ -219,17 +220,20 @@ public static boolean overlap(LocalDateTime startA, LocalDateTime startB, Reserv
     return startA.isBefore(startB.plusMinutes(block)) && startB.isBefore(startA.plusMinutes(block));
 }
 ```
-*Listing 3.x. BR-01 in `Reservation`.*
+*Listing 3.2. BR-01 in `Reservation`.*
 With the defaults, the block is 180 + 15 = 195 minutes.
 A booking at 19:00 blocks the table until 22:15. A booking at 22:15 is accepted, and 22:14 is refused (TC-RES-17).
 
 #### 3.2.5 Interface design
 - Navigation flow: `11-screen-navigation.png`.
 - Screens:
-  - Login.
-  - Floor overview: Figure 3.x, `docs/screenshots/giang/01-floor-overview.jpg`.
-  - Reservations: Figures 3.x, `02-reservation-check-in.jpg` and `03-check-in-too-early.jpg`.
-  - Waiting list: Figure 3.x, `04-waiting-list.jpg`.
+  - Login, with the demo accounts in small print: `docs/screenshots/app/02-login.jpg`.
+  - Floor overview: `docs/screenshots/app/01-floor.jpg`.
+  - Reservations, with the three-step booking form: `docs/screenshots/app/03-reservations.jpg`.
+  - Check-in refused because it is too early: `docs/screenshots/app/07-check-in-too-early.jpg`.
+  - Waiting list: `docs/screenshots/app/08-waiting-list.jpg`.
+  - Guest website with online booking: `docs/screenshots/app/06-guest-site.jpg`.
+  - Bill in the dark theme and in Vietnamese: `docs/screenshots/app/05-bill-dark-vi.jpg`.
   - Tables (Manager).
 - The UI design preview for all three modules is `docs/design/ui-demo.html`.
 
@@ -256,13 +260,13 @@ Lam's and Khoa's modules add no library. Each library, its version and its licen
 | Search available tables (FR-03) | date, start time, party size | Active tables that fit and have no booking within ±195 min | `GET /api/reservations/available-tables` | Booking form, step 1 |
 | Create reservation (FR-04, UC-03) | table, guest name, phone, party size, date, time, note | Confirmed reservation with a code such as `RVUKT2TB`. 409 on overlap | `POST /api/reservations` | Booking form, step 3 |
 | Modify / cancel (FR-05, UC-04) | reservation id, new details | Updated or Cancelled. The old table is released | `PUT /api/reservations/{id}`, `POST …/cancel` | Reservations page |
-| Check in (FR-05, UC-04) | reservation id | Reservation Checked in, table Occupied. Refused earlier than 30 min before, or 45 min or more after the start | `POST /api/reservations/{id}/check-in` | Figures 3.x (02, 03) |
+| Check in (FR-05, UC-04) | reservation id | Reservation Checked in, table Occupied. Refused earlier than 30 min before, or 45 min or more after the start | `POST /api/reservations/{id}/check-in` | Reservations page |
 | No-show and Reserved (FR-06, BR-05) | — (runs every 60 s) | No-show 45 min after the start, and the table is released. The table turns Reserved 30 min before a booking | `TableStatusScheduler` → `ReservationService.refreshStatuses` | Floor overview |
-| Waiting list (FR-07, UC-05) | party name, phone, size | Queue with positions in arrival order | `GET/POST/DELETE /api/waitlist` | Figure 3.x (04) |
-| Seat next waiting party (FR-08, BR-04) | table id | Earliest party that fits is seated; the table is Occupied | `POST /api/waitlist/seat-next?tableId=` | Figure 3.x (01) |
+| Waiting list (FR-07, UC-05) | party name, phone, size | Queue with positions in arrival order | `GET/POST/DELETE /api/waitlist` | Waiting list |
+| Seat next waiting party (FR-08, BR-04) | table id | Earliest party that fits is seated; the table is Occupied | `POST /api/waitlist/seat-next?tableId=` | Floor overview |
 | Seat a walk-in (BR-01, BR-02) | table id, party size | Table Occupied. Refused if a booking starts within 195 min | `POST /api/tables/{id}/seat-walk-in` | Floor overview |
 | Guests left / mark clean (FR-09, UC-06, BR-03) | table id | Needs cleaning (refused while an order is open), then Available | `POST /api/tables/{id}/needs-cleaning`, `/clean` | Floor overview |
-| Floor overview (FR-10) | — | All tables by section, colour-coded by status, with the actions allowed in each status | `GET /api/tables` | Figure 3.x (01) |
+| Floor overview (FR-10) | — | All tables by section, colour-coded by status, with the actions allowed in each status | `GET /api/tables` | Floor overview |
 | Reservation settings (UC-02 step 5) | dining 30–300, turn 0–60 min | New timings are used by BR-01 at once | `GET/PUT /api/settings/reservation` | — |
 | Online booking by guests (added after the Proposal, guest website at `/`) | name, phone, date, time from the free slots, number of guests, note | Confirmed reservation on the smallest free table that fits (BR-01, BR-02); booking code shown to the guest; the staff Reservations screen shows it at once with the note "Online booking" | `GET /api/public/slots`, `POST /api/public/reservations`, `GET /api/public/menu` (no login) | Guest website |
 
@@ -292,7 +296,7 @@ Lam's and Khoa's modules add no library. Each library, its version and its licen
 | Table with an unpaid bill cannot be cleaned (UC-06 alt. 1a) | Done | A generated, unpaid bill keeps the order LOCKED, and "Guests left" refuses a table with a LOCKED order (TC-BIL-33) |
 
 #### 3.3.4 Other deliverables
-- REST API: the endpoints in Table 3.x.
+- REST API: the endpoints in the table of 3.3.2.
 - Flyway migration `V1`.
 - README run guide, with the H2 demo profile that needs no MySQL.
 - Design preview: `docs/design/ui-demo.html`.
@@ -313,7 +317,7 @@ Lam's and Khoa's modules add no library. Each library, its version and its licen
   - One performance test for NFR-01 (TC-RES-30).
   - Manual checks in the browser for the rows marked "UI".
 - **Test cases.**
-  - TC-RES-01 to TC-RES-34, in `tests/test-cases-table-reservation.md`, Appendix A.
+  - TC-RES-01 to TC-RES-34, in `tests/test-cases-table-reservation.md`, Appendix D.
   - Columns: ID, purpose, precondition, input, expected, actual, pass/fail, automated test.
 - **Results** on 04/11/2026:
   - `mvnw test` runs 182 automated tests: 60 for this module, 71 for Order & Kitchen and 51 for Billing & Reporting. 0 failures (27/11/2026).
@@ -385,21 +389,9 @@ Lam's and Khoa's modules add no library. Each library, its version and its licen
 
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the backend skeleton, the Table & Reservation code (domain, services, controllers, Flyway V1) and the React screens from the Proposal's requirements and Giang's Week 4 diagrams | `src/backend` and `src/frontend`, Table & Reservation part (Weeks 5–7) | Giang read every class of the module and ran the automated tests (115 passing on 04/11/2026, 54 of them for this module). Giang tested each screen by hand with the H2 demo profile (rows marked "UI" in the test-case table) and recalculated the BR-01 boundary by hand (19:00 + 195 min = 22:15). The commits are from Giang's own account, through pull requests merged by another member |
-| Claude (Anthropic), via Claude Code | Writing the automated tests and the documented test cases TC-RES-01 to TC-RES-31 | `src/backend/src/test`, `tests/test-cases-table-reservation.md` | Giang compared each expected result with the requirement and the business rule it tests. Giang ran the tests and checked the "actual" column against the test output, and checked the UI rows in the browser |
-| Claude (Anthropic), via Claude Code | Translating the interview notes and anonymising the restaurant and area names | `docs/interview`, `docs/requirements/requirement-changes.md`, seed data | The three members who attended the interview checked the English notes against what the staff said. Giang chose to replace the real names with invented ones |
-| Claude (Anthropic), via Claude Code | Drafting the Week 7 self-check, the Week 8 security check, the updated Mermaid diagrams and this report's Chapter 1, Chapter 3 (Table & Reservation part), Chapter 4 and Giang's appendix rows | `docs/self-check-week7.md`, `docs/security-check.md`, `docs/diagrams/giang/README.md`, `docs/report/giang.md` | Giang checked every statement against the code and the test results; diagrams were compared with the classes and the Flyway script |
-| Claude (Anthropic), via Claude Code; Figma AI image generation | Building the clickable UI design preview (HTML) and its illustrative images | `docs/design/ui-demo.html` (design only, not part of the running application) | The team reviewed the screens against the use cases and used the preview to agree the layout before coding. The images are decorative and generated, not photographs of the real restaurant |
-| Claude (Anthropic), via Claude Code | Redesigning the user interface of all screens (sidebar layout, light and dark themes, Vietnamese text), the guest website with online booking (`PublicController`, `OnlineBookingService`), and the one-click `start.bat` | `src/frontend`, `src/backend` (public API, `SpaController`), `start.bat`, README (24/11/2026) | Giang ran `start.bat` and the 182 automated tests, booked a table on the guest website and saw it on the staff Reservations screen, and checked every screen in both themes and both languages, on a desktop and a phone width. The images on the guest website are AI-generated illustrations, as its footer says |
-
-We declare that we understand every part of the submitted work and can explain it on request.
-
-**Before signing, Giang checks being able to explain these parts of the code in an online walkthrough:**
-- The BR-01 formula and why the boundary is 22:15.
-- Why `findByIdForUpdate` stops double booking, and what the second request sees.
-- The `switch` in `DiningTable.changeStatus`.
-- How `TableStatusScheduler` marks a no-show, and why tests call `refreshStatuses(now)` directly.
-- The difference between the 400, 403 and 409 errors in `GlobalExceptionHandler`.
+| Claude (Anthropic), via Claude Code | Generating the shared skeleton, the Table & Reservation code and screens, the guest website, the redesigned interface and `start.bat` | `src/backend`, `src/frontend`, `start.bat` | Giang read every class of the module, ran the 182 automated tests and checked each screen by hand in both themes and both languages |
+| Claude (Anthropic), via Claude Code | Writing the automated tests and the test cases TC-RES-01 to TC-RES-34 | `src/backend/src/test`, `tests/test-cases-table-reservation.md` | Each expected result was compared with its requirement and business rule; the BR-01 boundary was recalculated by hand (19:00 + 195 min = 22:15) |
+| Claude (Anthropic), via Claude Code; Figma AI | Translating and anonymising the interview notes; drafting diagrams, the UI design preview and this report's Chapters 1, 3 and 4 | `docs/interview`, `docs/diagrams/giang`, `docs/design`, `docs/report` | The interview notes were checked by the three members who attended; diagrams and report text were checked against the code and the test results |
 
 ### Appendix C — Individual contribution table
 
@@ -407,5 +399,5 @@ Fill in the commit counts at v1.0 with `git shortlog -sn --all` (merge commits e
 
 | Member | Main responsibilities | Main artefacts produced | Commits | Share of work (%) | Signature |
 |---|---|---|---|---|---|
-| Kieu Bao Giang (leader) | Team lead; repository and workflow; shared skeleton, login and roles; Table & Reservation module; restaurant interview write-up; report front matter, Chapters 1 and 4, assembly of the final report | Proposal; `docs/diagrams/giang/`; Flyway V1; Table & Reservation backend and frontend; 60 automated tests and TC-RES-01 to TC-RES-34; guest website and online booking; the shared interface, light and dark themes, Vietnamese; `start.bat`; self-check, security check | 48 | [agreed by the team] | |
+| Kieu Bao Giang (leader) | Team lead; repository and workflow; shared skeleton, login and roles; Table & Reservation module; restaurant interview write-up; report front matter, Chapters 1 and 4, assembly of the final report | Proposal; `docs/diagrams/giang/`; Flyway V1; Table & Reservation backend and frontend; 60 automated tests and TC-RES-01 to TC-RES-34; guest website and online booking; the shared interface, light and dark themes, Vietnamese; `start.bat`; self-check, security check | 48 | 59 | |
 
