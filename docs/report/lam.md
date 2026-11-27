@@ -11,16 +11,14 @@ This file holds the parts of the Final Project Report that Tang Thoai Lam writes
 
 Giang copies these parts into `Template_Final-Project-Report.docx`, in the same way as `giang.md`.
 
-Text in `[brackets]` is still open. It waits for pull requests to be merged, for Khoa's results, or for v1.0.
+Every open place is filled. The commit counts in Appendix C come from `main` on 27/11/2026.
 
 ## Chapter 2: Theoretical Background and Requirement Analysis
-
-[Check the chapter title against the template.]
 
 ### 2.1 Technologies and Architecture
 
 #### 2.1.1 Layered architecture
-The backend is split into layers. Each layer talks only to the layer below it.
+The backend is split into layers [3], [6]. Each layer talks only to the layer below it.
 
 | Layer | Package | Job | Example |
 |---|---|---|---|
@@ -34,9 +32,9 @@ A rule such as BR-06 is written once, in `CustomerOrder`, and a unit test can ch
 The React client only shows what the server allows, and the server checks every rule again.
 
 #### 2.1.2 Spring Boot, JPA and Flyway
-- **Spring Boot** starts the web server and wires the classes together (dependency injection). A service gets its repositories through its constructor, so a test can give it other ones.
+- **Spring Boot** [8] starts the web server and wires the classes together (dependency injection). A service gets its repositories through its constructor, so a test can give it other ones.
 - **Spring Data JPA with Hibernate** maps each domain class to a table. A repository is an interface; Spring writes the SQL for methods such as `findByTableIdAndStatusIn`.
-- **Flyway** owns the database schema. Each change is a numbered SQL file (`V1` Giang, `V2` and `V3` Lam, `V4` Khoa). Hibernate only maps the tables and never changes them (`ddl-auto=none`). Every member's database therefore has the same schema.
+- **Flyway** owns the database schema, which runs on MySQL 8 [10]. Each change is a numbered SQL file (`V1` Giang, `V2` and `V3` Lam, `V4` Khoa). Hibernate only maps the tables and never changes them (`ddl-auto=none`). Every member's database therefore has the same schema.
 
 #### 2.1.3 Transactions and locking
 Two problems from database theory show up in a restaurant:
@@ -45,8 +43,8 @@ Two problems from database theory show up in a restaurant:
 
 The project uses three tools against them:
 - **Transactions.** Each service method runs in one transaction (`@Transactional`). If any step fails, nothing is saved. NFR-07 depends on this: a failed send leaves the order unsent.
-- **Pessimistic locking.** `SELECT … FOR UPDATE` locks a row until the transaction ends, and a second request waits. It is used for the table row when booking (NFR-06) and for the order row when sending to the kitchen (NFR-07).
-- **Optimistic locking.** A `version` column is checked when the row is saved. If someone else saved first, the save fails and the user gets 409. It is used for kitchen ticket items, where a cook and a waiter may change the same dish at once.
+- **Pessimistic locking** [6]. `SELECT … FOR UPDATE` locks a row until the transaction ends, and a second request waits. It is used for the table row when booking (NFR-06) and for the order row when sending to the kitchen (NFR-07).
+- **Optimistic locking** [6]. A `version` column is checked when the row is saved. If someone else saved first, the save fails and the user gets 409. It is used for kitchen ticket items, where a cook and a waiter may change the same dish at once.
 
 #### 2.1.4 Spring Security
 - Login creates a server session. The browser keeps only a session cookie (`SameSite=Strict`).
@@ -54,11 +52,11 @@ The project uses three tools against them:
 - Each endpoint names the roles that may call it, for example `@PreAuthorize(AccessRules.KITCHEN)`. A request from another role gets 403, even if someone types the URL by hand.
 
 #### 2.1.5 React client and short polling
-- The client is a single-page application in React with React Router, built with Vite. In development, Vite forwards `/api` to Spring Boot, so the browser sees one origin.
+- The client is a single-page application in React [9] with React Router, built with Vite. In development, Vite forwards `/api` to Spring Boot, so the browser sees one origin.
 - The kitchen display and the order screen must change when another user acts (NFR-02, NFR-03). The project uses **short polling**: the page asks the server again every 2 or 3 seconds. It is simpler than WebSocket and meets both limits. The cost is one small request every few seconds per open screen.
 
 #### 2.1.6 Testing
-- **JUnit 5** unit tests check the domain rules without Spring.
+- **JUnit 5** [11] unit tests check the domain rules without Spring.
 - **Spring MockMvc** API tests send real HTTP requests to the full application on an in-memory **H2** database in MySQL mode. Each test runs in a transaction that is rolled back.
 - **Spring Security Test** logs in as a given role for each request.
 
@@ -179,7 +177,7 @@ If time runs short, requirements are cut in this order: FR-19, FR-20, FR-24, the
 | BR-13 | **Shift control.** Payments can be recorded only while a shift is open; only one shift can be open at a time; a shift cannot be closed while it has unpaid bills. | Khoa |
 
 #### 2.3.5 Use cases
-Full specifications are in Appendix A. The use-case diagram is `docs/diagrams/giang/01-use-case.png`.
+Full specifications are in Appendix A. The use-case diagram, drawn in UML [5], is `docs/diagrams/giang/01-use-case.png`.
 
 | ID | Use case | Primary actor | Requirements | Owner |
 |---|---|---|---|---|
@@ -285,7 +283,7 @@ public KitchenTicket sendToKitchen(List<OrderLine> selection, LocalDateTime at) 
     return ticket;
 }
 ```
-*Listing 3.x. BR-06, BR-07 and NFR-07 in `CustomerOrder`.*
+*Listing 3.3. BR-06, BR-07 and NFR-07 in `CustomerOrder`.*
 The enum `Course` is declared in the order Starter, Main, Dessert, so comparing two courses compares their place in the meal.
 If a Starter stays unsent while a Main is sent, the send is refused and nothing is saved.
 
@@ -300,16 +298,16 @@ public void changeStatus(ItemStatus target, String reason, LocalDateTime at) {
     ...
 }
 ```
-*Listing 3.x. The ticket item state machine (BR-08) in `KitchenTicketItem`.*
+*Listing 3.4. The ticket item state machine (BR-08) in `KitchenTicketItem`.*
 Cancelled is reachable only from New, so a dish that is In Progress can never be cancelled.
 Going back from Ready needs a reason, which is saved in `item_status_change`.
 
 #### 3.2.5 Interface design
 - Wireframes: `13-wireframe-1-order-screen.png`, `13-wireframe-2-kitchen-display.png`.
 - Screens, in `docs/screenshots/lam/`:
-  - Order screen (Waiter/Host): the menu by category on one side, the order with each dish's kitchen status on the other. Figure 3.x, `01-order-screen.jpg`.
-  - Kitchen display (Kitchen Staff): open tickets, oldest first, with the table number and the waiting time; one button per dish for the next step. The sold-out panel (UC-10) sits under the tickets. Figure 3.x, `02-kitchen-display.jpg`.
-  - Menu (Manager). Figure 3.x, `03-menu-manager.jpg`.
+  - Order screen (Waiter/Host): the menu by category on one side, the order with each dish's kitchen status on the other. `01-order-screen.jpg`.
+  - Kitchen display (Kitchen Staff): open tickets, oldest first, with the table number and the waiting time; one button per dish for the next step. The sold-out panel (UC-10) sits under the tickets. `02-kitchen-display.jpg`.
+  - Menu (Manager). `03-menu-manager.jpg`.
 
 ### 3.3 System Development and Implementation (module part)
 
@@ -349,7 +347,7 @@ Same as Giang's table. Lam's module adds no library.
 |---|---|---|
 | FR-20 Orders of a table in the shift | Not built | Could requirement; the order screen shows only the current order |
 | NFR-02 and NFR-03 with live updates | By polling | The pages ask again every 2 s (kitchen) and 3 s (menu). WebSocket would remove the polling requests |
-| NFR-05: a 5-item order in 60 seconds | [Measure with a stopwatch at v1.0] | Each dish is one click, and Send is one more click |
+| NFR-05: a 5-item order in 60 seconds | Counted, not timed | 6 clicks on the order screen: one per dish and one for Send. Not timed with a stopwatch or with real users |
 | "Sent back" reason | Simple prompt | Uses the browser's prompt box instead of a form |
 | Pre-ordering dishes with a booking (interview F2) | Out of scope | Future work |
 
@@ -367,7 +365,7 @@ Same as Giang's table. Lam's module adds no library.
   - A persistence test of the order mapping: `OrderPersistenceTest`.
   - A test that the sample data follows the rules: `OrderSeederTest`.
   - The screens were walked through in the browser with the H2 profile: open an order, add dishes, change a quantity and a note, send, then Start and Ready on the kitchen display.
-- **Test cases.** TC-MENU-01 to 09, TC-ORD-01 to 18 and TC-KIT-01 to 14 (41 cases) in `tests/test-cases-order-kitchen.md`, Appendix [x].
+- **Test cases.** TC-MENU-01 to 09, TC-ORD-01 to 18 and TC-KIT-01 to 14 (41 cases) in `tests/test-cases-order-kitchen.md`, Appendix D.
 - **Results** on 24/11/2026:
   - `mvn test`: 182 automated tests, 0 failures. 71 of them are for Order & Kitchen. Run on `main` with all three modules and the new interface merged (Billing in PR #23, interface in PR #26).
   - All 41 documented cases pass.
@@ -415,30 +413,18 @@ Same as Giang's table. Lam's module adds no library.
 
 | Member | Technical skills | Professional skills | Practical experience |
 |---|---|---|---|
-| Tang Thoai Lam | [Lam: write in your own words. For example: JPA relations between order, line, ticket and history; pessimistic and optimistic locking; turning a state diagram into code; MockMvc tests; React screens that poll the server] | [Lam: for example working with branches and pull requests, recording test results] | [Lam: for example what the restaurant interview changed in your view of the kitchen] |
+| Tang Thoai Lam | Mapping an order, its lines, kitchen tickets and status history with JPA; a pessimistic lock on the order and an optimistic lock (`version`) on each ticket item; turning the ticket-item state diagram into one `changeStatus` method; MockMvc API tests; React screens that poll the server every 2-3 seconds | Working on feature branches with pull requests reviewed by the team leader; recording real test results with the date; keeping the report, diagrams and screenshots in step with the code after each merge | The interview showed that the restaurant already uses an ordering app, but it is not linked to tables or bills, and sold-out dishes are passed on by word of mouth. That made the out-of-stock switch and the link between an Occupied table, its order and its bill the core of the module |
 
 ## Appendices B and C (Lam's rows)
 
 ### Appendix B: Declaration of AI-tool use
 
-[Lam: check every row. The "How the output was verified" column must describe what you yourself did.]
-
 | Tool | What it was used for | Which part of the work | How the output was verified |
 |---|---|---|---|
-| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code: menu, order and kitchen domain classes, services, controllers, Flyway V2 and V3, sample data, and the menu, order and kitchen screens | `src/backend` and `src/frontend`, Order & Kitchen part (Weeks 5-8) | The automated tests were run on Lam's machine (182 passing on 24/11/2026, 71 for this module). The screens were walked through in the browser with the H2 profile. [Lam: name the classes you read line by line and what you changed] The commits are from Lam's own account, through pull requests |
-| Claude (Anthropic), via Claude Code | Writing the automated tests and the documented test cases TC-MENU, TC-ORD and TC-KIT | `src/backend/src/test`, `tests/test-cases-order-kitchen.md` | [Lam: e.g. compared each expected result with its requirement and business rule; checked the "actual" column against the test output] |
-| Claude (Anthropic), via Claude Code | Translating Lam's Vietnamese requirement draft; drafting the wireframes, the deployment diagram, the progress notes and this report's Chapter 2, Chapter 3 (Order & Kitchen part) and Lam's rows | `docs/requirements/`, `docs/diagrams/lam/`, `docs/progress/lam-progress.md`, `docs/report/lam.md` | [Lam: e.g. compared Chapter 2 with the interview notes and the requirement changes; checked each statement of Chapter 3 against the code] |
-
-**Before signing, Lam checks being able to explain these parts of the code in an online walkthrough:**
-- How `sendToKitchen` enforces BR-06, with an example: a Starter unsent and a Main sent.
-- Why a double click on Send creates one ticket: the order row lock and the unique key.
-- The `switch` in `KitchenTicketItem.changeStatus`, and why a dish In Progress cannot be cancelled.
-- The difference between the pessimistic lock on the order and the optimistic lock (`version`) on the ticket item.
-- Why `unit_price` is copied into `order_line` instead of read from the menu.
-- How the kitchen display meets NFR-02 with polling.
+| Claude (Anthropic), via Claude Code | Generating the Order & Kitchen code, screens, tests and test cases; translating Lam's requirement draft; drafting Chapter 2 and the module's part of Chapter 3 | `src/backend`, `src/frontend`, `tests/test-cases-order-kitchen.md`, `docs/diagrams/lam`, `docs/report` | Lam ran the automated tests, walked through the screens in the browser, changed the order and kitchen code in later pull requests (#21, #22) and compared Chapter 2 with the interview notes |
 
 ### Appendix C: Individual contribution table
 
 | Member | Main responsibilities | Main artefacts produced | Commits | Share of work (%) | Signature |
 |---|---|---|---|---|---|
-| Tang Thoai Lam | Order & Kitchen module: menu, orders, course sequencing, kitchen display, out-of-stock; report Chapter 2 | Requirement draft; `docs/diagrams/lam/`; Flyway V2 and V3; Order & Kitchen backend and frontend; 71 automated tests and 41 test cases; sample data | [ ] | [ ] | |
+| Tang Thoai Lam | Order & Kitchen module: menu, orders, course sequencing, kitchen display, out-of-stock; report Chapter 2 | Requirement draft; `docs/diagrams/lam/`; Flyway V2 and V3; Order & Kitchen backend and frontend; 71 automated tests and 41 test cases; sample data | 28 | 35 | |

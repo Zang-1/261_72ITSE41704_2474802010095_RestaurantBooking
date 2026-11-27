@@ -22,3 +22,6 @@ dist/
 # Database
 *.sqlite
 *.db
+
+# Built report (submitted separately with the code, not kept in the repo)
+docs/report/output/
